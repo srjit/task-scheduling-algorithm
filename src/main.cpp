@@ -1,6 +1,9 @@
 #include <iostream>
+#include <array>
 
 using namespace std;
+int jobCount = 10;
+int coreCount = 3;
 
 
 void print_matrix(int **matrix, int rows, int cols){
@@ -14,7 +17,7 @@ void print_matrix(int **matrix, int rows, int cols){
   
 }
 
-void example_graph(int **graph, int jobCount){
+void example_graph(int **graph){
 
   for(int i=0;i<jobCount; i++){
     graph[i] = new int[jobCount];
@@ -27,16 +30,40 @@ void example_graph(int **graph, int jobCount){
               = graph[7][9] = graph[8][9] = 1;
 }
 
+std::array<std::array<int,3>, 10> local_execution_core_cycles(){
+
+  std::array<std::array<int,3>,10> coreTable = {{{9,7,5},             
+  	       {8,6,5},
+  	       {6,5,4},
+  	       {7,5,3},
+  	       {5,4,2},
+  	       {7,6,4},
+  	       {8,5,3},
+  	       {6,4,2},
+  	       {5,3,2},
+  	       {7,4,2}
+  }};
+
+  return coreTable;
+}
+
+
 int main(){
 
 
   int jobCount = 10;
+  int coreCount = 3;
 
   int **graph = new int*[jobCount];
+  int **cores_table = new int*[jobCount];
+  example_graph(graph);
 
-  example_graph(graph, jobCount);
+  int **coreTable = new int*[jobCount];
+  local_execution_core_cycles();
 
   print_matrix(graph, 10, 10);
+
+  
 
   
 }
