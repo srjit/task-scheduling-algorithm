@@ -1,6 +1,3 @@
-
-
-
 struct CloudTask{
 
   int t_send;
