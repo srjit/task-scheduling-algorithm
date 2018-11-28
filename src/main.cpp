@@ -1,12 +1,15 @@
 #include <iostream>
 #include <array>
 
+#include "Utils.cc"
+#include "MCCScheduler.cc"
+
 using namespace std;
-int jobCount = 10;
-int coreCount = 3;
+int job_count = 10;
+int core_count = 3;
 
-
-void print_matrix(int **matrix, int rows, int cols){
+void print_matrix(int **matrix, int rows, int cols)
+{
 
   for(int i=0; i<rows; i++){
     for(int j=0; j<cols; j++){
@@ -17,10 +20,11 @@ void print_matrix(int **matrix, int rows, int cols){
   
 }
 
-void example_graph(int **graph){
+void example_graph(int **graph)
+{
 
-  for(int i=0;i<jobCount; i++){
-    graph[i] = new int[jobCount];
+  for(int i=0;i<job_count; i++){
+    graph[i] = new int[job_count];
   }
 
   graph[0][1] = graph[0][2] = graph[0][3] = graph[0][4]
@@ -28,11 +32,13 @@ void example_graph(int **graph){
               = graph[2][6] = graph[3][7] = graph[3][8]
               = graph[4][8] = graph[5][7] = graph[6][9]
               = graph[7][9] = graph[8][9] = 1;
+  
 }
 
-std::array<std::array<int,3>, 10> local_execution_core_cycles(){
+std::array<std::array<int,3>, 10> local_execution_core_cycles()
+{
 
-  std::array<std::array<int,3>,10> coreTable = {{{9,7,5},             
+  std::array<std::array<int,3>,10> core_table = {{{9,7,5},             
   	       {8,6,5},
   	       {6,5,4},
   	       {7,5,3},
@@ -44,26 +50,33 @@ std::array<std::array<int,3>, 10> local_execution_core_cycles(){
   	       {7,4,2}
   }};
 
-  return coreTable;
+  return core_table;
 }
 
 
-int main(){
+int main()
+{
 
+  int job_count = 10;
+  int core_count = 3;
 
-  int jobCount = 10;
-  int coreCount = 3;
-
-  int **graph = new int*[jobCount];
-  int **cores_table = new int*[jobCount];
+  int **graph = new int*[job_count];
   example_graph(graph);
 
-  int **coreTable = new int*[jobCount];
-  local_execution_core_cycles();
+  int **core_table = new int*[job_count];
+  std::array<std::array<int,3>, 10> cores_table = local_execution_core_cycles();
 
   print_matrix(graph, 10, 10);
 
-  
+  CloudTask c_task;
+  c_task.t_send = 3;
+  c_task.t_c_exec = 1;
+  c_task.t_recv = 1;
 
+  initial_scheduling(graph,
+		     cores_table,
+		     job_count,
+		     core_count,
+		     c_task);
   
 }
