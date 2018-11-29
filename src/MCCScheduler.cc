@@ -72,7 +72,8 @@ void primary_assignment(std::vector<Task> tasks,
 
 
 std::vector<Task> construct_tasks(int **graph,
-					     int job_count)
+				  int job_count,
+				  std::vector<int> exit_tasks)
 {
 
   /**
@@ -103,14 +104,27 @@ std::vector<Task> construct_tasks(int **graph,
     	}
       }
     }
-	
+
+    for(int k=0; k<=exit_tasks.size(); k++){
+      tasks[exit_tasks[k]].set_is_exit(true);
+    }
 	
   return tasks;
 }
 
 
-void task_prioritizing()
+void task_prioritizing(std::vector<Task> tasks)
 {
+
+  /**
+   *  priority(Vi)   = Wi + Max priority of a successor
+   *  Ref: Equation 15, page 195
+   * 
+   */
+  for (std::vector<Task>::reverse_iterator i = tasks.rbegin(); 
+        i != tasks.rend(); ++i ) {
+    
+  } 
   
 }
 
@@ -121,15 +135,18 @@ void initial_scheduling(int **graph,
 	CloudTask c_task_attributes)
 {
 
+  std::vector<int> exit_task_ids = {9};
   std::vector<Task> tasks = construct_tasks(graph,
-					    job_count);
+					    job_count,
+					    exit_task_ids);
 
+  
   primary_assignment(tasks,
 		     core_table,
 		     job_count,
 		     core_count,
 		     c_task_attributes);
 
-  task_prioritizing();
+  //  task_prioritizing();
   
 }

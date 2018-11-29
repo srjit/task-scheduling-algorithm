@@ -12,6 +12,8 @@ class Task{
    */
   float cost;
   char type;
+  float priority;
+  bool is_exit = false;
   std::vector<Task*> parents;
   std::vector<Task*> children;
   
@@ -40,6 +42,22 @@ public:
 
   char get_type(){
     return this->type;
+  }
+
+  void set_priority(float priority){
+    this->priority = priority;
+  }
+
+  float get_priority(){
+    return this->priority;
+  }
+
+  void set_is_exit(bool is_exit){
+    this->is_exit = is_exit;
+  }
+
+  bool get_is_exit(){
+    return this->is_exit;
   }
 
   /*
