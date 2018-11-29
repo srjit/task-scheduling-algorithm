@@ -1,11 +1,13 @@
 #include <vector>
+#include <numeric>
 
 #include "Task.cc"
 
 
 using namespace std;
 
-void primary_assignment(std::array<std::array<int,3>, 10> core_table,
+void primary_assignment(std::vector<Task> tasks,
+			std::array<std::array<int,3>, 10> core_table,
 			int job_count,
 			int core_count,
 			CloudTask c_task_attributes)
@@ -29,16 +31,34 @@ void primary_assignment(std::array<std::array<int,3>, 10> core_table,
     c_task_attributes.t_c_exec +
     c_task_attributes.t_recv;
 
-  for(int i=0; i<job_count; i++){
-    task_mintime_cloud[i] = cloud_task_time;
-  }
-
   /**
    *  Assign where this task has to be executed - local/cloud
    */
   char task_type[job_count];
   for(int i=0; i<job_count; i++){
+
+    task_mintime_cloud[i] = cloud_task_time;
+    
     task_type[i] = task_mintime_local[i] <= task_mintime_cloud[i] ? 'l' : 'c';
+    tasks[i].set_type(task_type[i]);
+
+    int cost = 0;
+
+    if (task_type[i] == 'l'){
+    
+      //    std::array<int, 3> tmp =
+      int total_local_cost = accumulate(begin(core_table[i]),
+					end(core_table[i]),
+					0,
+					plus<int>());
+
+      cost = total_local_cost / core_count;
+    } else if (task_type[i] == 'c'){
+      cost = task_mintime_cloud[i];
+    }
+
+  tasks[i].set_cost(cost);
+
   }
 
   std::cout<<"\n";
@@ -73,9 +93,6 @@ std::vector<Task> construct_tasks(int **graph,
    tasks.push_back(task);
   }
 
-  std::cout<<"\n---------------------\n";
-
-  
   /**
    * Enrich the graph with children of each graph
    */
@@ -89,7 +106,6 @@ std::vector<Task> construct_tasks(int **graph,
 	
 	
   return tasks;
-    
 }
 
 
@@ -102,16 +118,18 @@ void initial_scheduling(int **graph,
 			std::array<std::array<int,3>, 10> core_table,
 			int job_count,
 			int core_count,
-			CloudTask c_task_attributes)
+	CloudTask c_task_attributes)
 {
 
-  primary_assignment(core_table,
+  std::vector<Task> tasks = construct_tasks(graph,
+					    job_count);
+
+  primary_assignment(tasks,
+		     core_table,
 		     job_count,
 		     core_count,
 		     c_task_attributes);
 
-  std::vector<Task> tasks = construct_tasks(graph,
-					    job_count);
-  //task_prioritizing();
+  task_prioritizing();
   
 }
