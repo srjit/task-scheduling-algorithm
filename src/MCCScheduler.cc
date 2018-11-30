@@ -79,7 +79,7 @@ std::vector<Task> construct_tasks(int **graph,
    * Find the parent(s) of each task
    */
   for(int j=0; j<job_count; j++){
-    Task task(j);
+    Task task(j+1);
     for(int i=0; i<j; i++){
       if (graph[i][j] == 1){
 	task.add_parent(&tasks[i]);
@@ -216,7 +216,7 @@ void initial_scheduling(int **graph,
   
   std::cout<<"\n Current order of execution with priorities  \n";
   for(int i=0; i<10; i++){
-    std::cout<<"\n"<<i<<"\t"<<tasks[i].get_priority();
+    std::cout<<"\n"<<tasks[i].get_id()<<"\t"<<tasks[i].get_priority();
   }
   std::cout<<"\n";
   
