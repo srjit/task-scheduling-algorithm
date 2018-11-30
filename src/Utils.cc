@@ -1,3 +1,9 @@
+#include <vector>
+
+//#include "Task.cc"
+
+using namespace std;
+
 struct CloudTask{
 
   int t_send;
@@ -5,3 +11,6 @@ struct CloudTask{
   int t_recv;
   
 };
+
+
+
