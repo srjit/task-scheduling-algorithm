@@ -65,7 +65,13 @@ std::vector<Task> construct_tasks(int **graph,
 {
 
   /**
-   *  Construct the task graph
+   *  Construct the task graph from the adjacency matrix.
+   *
+   *  Each job becomes an Object of type 'Task'.
+   *
+   *  It would have pointers to its parent tasks
+   *  as well as child tasks for easy traversal.
+   *
    */
   std::vector<Task> tasks;
 
@@ -100,8 +106,6 @@ std::vector<Task> construct_tasks(int **graph,
   return tasks;
   
 }
-
-
 
 
 void calculate_and_set_priority(Task &task){
@@ -153,6 +157,35 @@ void task_prioritizing(std::vector<Task> &tasks)
 }
 
 
+bool compare_by_priority(Task t1, Task t2)
+{
+
+ /**
+  *  Comparator for sorting the tasks by priority
+  */
+   return t1.get_priority() > t2.get_priority();
+   
+}
+
+
+void sort_by_priority(std::vector<Task> &tasks)
+{
+
+ /**
+  *  Sorting tasks by priority in descending order
+  */
+  std::sort (tasks.begin(), tasks.end(), compare_by_priority);
+  
+}
+
+
+void execution_unit_selection(std::vector<Task> &tasks)
+{
+
+  sort_by_priority(tasks);
+}
+
+
 void initial_scheduling(int **graph,
 			std::array<std::array<int,3>, 10> core_table,
 			int job_count,
@@ -160,13 +193,16 @@ void initial_scheduling(int **graph,
 	CloudTask c_task_attributes)
 {
 
+  /**
+   *  Core of the initial component of  the MCC Scheduler
+   *
+   */
   std::vector<int> exit_task_ids;
   exit_task_ids.push_back(9);
 
   std::vector<Task> tasks = construct_tasks(graph,
 					    job_count,
 					    exit_task_ids);
-
   primary_assignment(tasks,
 		     core_table,
 		     job_count,
@@ -175,5 +211,13 @@ void initial_scheduling(int **graph,
 
 
   task_prioritizing(tasks);
+  execution_unit_selection(tasks);
+
+  
+  std::cout<<"\n Current order of execution with priorities  \n";
+  for(int i=0; i<10; i++){
+    std::cout<<"\n"<<i<<"\t"<<tasks[i].get_priority();
+  }
+  std::cout<<"\n";
   
 }
