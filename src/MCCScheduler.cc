@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void primary_assignment(std::vector<Task> tasks,
+void primary_assignment(std::vector<Task>& tasks,
 			std::array<std::array<int,3>, 10> core_table,
 			int job_count,
 			int core_count,
