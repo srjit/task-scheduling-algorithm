@@ -74,15 +74,17 @@ void task_prioritizing(std::vector<Task> &tasks)
   
 }
 
-void execution_unit_selection(std::vector<Task> &tasks)
+void execution_unit_selection(std::vector<Task> &tasks,
+			      int core_count)
 {
 
   sort_by_priority(tasks);
+
+  std::vector<ExecutionUnit> cpus = get_execution_units(core_count);
+  std::cout<<"\nThere are "<< cpus.size() <<" execution units available\n";
   
   std::vector<Task> tasks_in_pool(tasks);
   std::vector<Task> ready_queue;
-  
-
 
   /**
    * Add first task to ready queue
@@ -91,8 +93,9 @@ void execution_unit_selection(std::vector<Task> &tasks)
   ready_queue.push_back(tasks[0]);
   
   
-  assign_core_or_cloud(tasks_in_pool,
-  		       ready_queue);
+  run_scheduler(tasks_in_pool,
+			  ready_queue,
+			  cpus);
 }
 
 
@@ -121,7 +124,8 @@ void initial_scheduling(int **graph,
 
 
   task_prioritizing(tasks);
-  execution_unit_selection(tasks);
+  execution_unit_selection(tasks,
+			   core_count);
 
   
   std::cout<<"\n Current order of execution with priorities  \n";

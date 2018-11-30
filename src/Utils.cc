@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "Task.cc"
+#include "ExecutionUnit.cc"
 
 using namespace std;
 
@@ -13,6 +14,29 @@ struct CloudTask{
   int t_recv;
   
 };
+
+
+std::vector<ExecutionUnit> get_execution_units(int core_count){
+
+  std::vector<ExecutionUnit> cpus;
+
+  /**
+   * One unit for every CPU core
+   */
+  for(int i=0; i<core_count; i++){
+    ExecutionUnit eu(i+1, 'l');
+    cpus.push_back(eu);
+  }
+
+  /**
+   * 1 Execution Unit for the cloud
+   */
+  ExecutionUnit eu(core_count+1, 'c');
+  cpus.push_back(eu);
+
+  return cpus;
+  
+}
 
 
 bool compare_by_priority(Task t1, Task t2)
@@ -123,7 +147,63 @@ void calculate_and_set_priority(Task &task){
 }
 
 
-void execute(std::vector<Task> &ready_queue){
+void start(Task* task,
+	   ExecutionUnit* cpu){
+
+  
+}
+
+
+
+
+ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit> &cpus){
+
+  ExecutionUnit* free_unit = NULL;
+  
+  for(int i=0; i< cpus.size(); i++){
+    if(cpus[i].get_available()){
+      free_unit = &cpus[i];
+      break;
+    }
+  }
+
+  return free_unit;
+  
+}
+
+
+void assign(std::vector<Task> &ready_queue,
+	    std::vector<Task> &running_queue,	    
+	    std::vector<ExecutionUnit> &cpus){
+
+  /**
+   * For each task in the ready queue, look
+   * for availability of cores / cloud instance.
+   *nnnn
+   * If some processing unit is available assign it to it.
+   * set the ticks to finish for the task
+   *
+   * If not break out, we cannot assign any more tasks
+   * anyway.
+   */
+  for(int i=0; i<ready_queue.size(); i++){
+
+    ExecutionUnit* cpu = get_free_cpu(cpus);
+    Task task = ready_queue[i];
+
+    if(cpu != NULL){
+      start(&task, cpu);
+      /**
+       * Remove the task from ready queue and assign it to running queue
+       */
+      
+    }else{
+      std::cout<<"\nFoo";
+      break;
+    }
+    
+  }
+  
 }
 
 
@@ -136,20 +216,59 @@ void print_ready_tasks(std::vector<Task> &ready_queue){
   std::cout<<"\n";
 }
 
-void assign_core_or_cloud(std::vector<Task> &tasks_in_pool,
-			  std::vector<Task> &ready_queue){
+
+void check_if_finished(std::vector<Task> &running_queue){
+  
+}
+
+void try_unlocking(std::vector<Task> &tasks_in_pool,
+		   std::vector<Task> &ready_queue){
+  
+}
+
+
+void run(std::vector<Task> &running_queue){
 
   /**
+   * Increment the tick for each task.
+   * If the task progress  = ticks to finish
+   * set its execution unit availablity to true.
+   *
+   */
+  
+}
+
+
+void run_scheduler(std::vector<Task> &tasks_in_pool,
+		   std::vector<Task> &ready_queue,
+		   std::vector<ExecutionUnit> &cpus){
+
+  std::vector<Task> running_queue;
+  
+  /**
    *  Every time it goes into this loop,
-   *  it is one time step (shown in Fig. 3)
+   *  it is one tick (shown in Fig. 3)
    */
   do{
 
-    std::cout<<"Polling for tasks in the ready queue...\n";
+    /**
+     * If any job has finished, free the CPU
+     * on which it has been running
+     */
+    check_if_finished(running_queue);
+    try_unlocking(tasks_in_pool, ready_queue);
+    
     if (ready_queue.size() > 0){
-      print_ready_tasks(ready_queue);
-      execute(ready_queue);
+
+      // sort the ready queue by priority
+      assign(ready_queue,
+	     running_queue,
+	     cpus);
+      
       sleep(1);
+
+      // increment the running tick for every running task
+      run(running_queue);
     }
 	
   }while(tasks_in_pool.size() > 0);

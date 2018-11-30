@@ -21,7 +21,18 @@ class Task{
   bool is_exit = false;
   std::vector<Task*> parents;
   std::vector<Task*> children;
-  
+
+  /**
+   * Increment this unit by 1 tick
+   * evey time it is running
+   */
+  float progress = 0;
+
+  /**
+   * The ticks to finish a task depends on the CPU on
+   * which is assigned to.
+   */
+  int ticks_to_finish;
   
 public:
 
@@ -118,5 +129,20 @@ public:
   void add_child(Task* child){
     this->children.push_back(child);
   }
-  
+
+  void set_ticks_to_finish(int ticks){
+    this->ticks_to_finish = ticks;
+  }
+
+  int get_ticks_to_finish(){
+    return this->ticks_to_finish;
+  }
+
+  void increment_progress(){
+    this->progress += 1;
+  }
+
+  void set_progress(int progress){
+    this->progress = progress;
+  }
 };
