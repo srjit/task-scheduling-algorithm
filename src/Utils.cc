@@ -240,7 +240,8 @@ void check_if_finished(std::vector<Task> &running_queue){
       ExecutionUnit* cpu = task.get_cpu();
       cpu->set_available(true);
 
-      // remove the task from the running queue
+      // remove the task from the running queue - wouldn't this
+      // be a ConcurrentExecutionException ?? - Need to check later - Sreejith
       running_queue.erase(std::remove(running_queue.begin(),
 				      running_queue.end(), task),
 			  running_queue.end());
