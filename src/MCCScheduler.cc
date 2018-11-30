@@ -1,6 +1,7 @@
 #include <vector>
 #include <numeric>
 #include <algorithm>
+#include <queue>
 
 #include "Utils.cc"
 
@@ -58,89 +59,6 @@ void primary_assignment(std::vector<Task> &tasks,
 
 }
 
-
-std::vector<Task> construct_tasks(int **graph,
-				  int job_count,
-				  std::vector<int> exit_tasks)
-{
-
-  /**
-   *  Construct the task graph from the adjacency matrix.
-   *
-   *  Each job becomes an Object of type 'Task'.
-   *
-   *  It would have pointers to its parent tasks
-   *  as well as child tasks for easy traversal.
-   *
-   */
-  std::vector<Task> tasks;
-
-  /**
-   * Find the parent(s) of each task
-   */
-  for(int j=0; j<job_count; j++){
-    Task task(j+1);
-    for(int i=0; i<j; i++){
-      if (graph[i][j] == 1){
-	task.add_parent(&tasks[i]);
-      }
-    }
-   tasks.push_back(task);
-  }
-
-  /**
-   * Enrich the graph with children of each graph
-   */
-    for(int i=0; i<job_count; i++){
-      for(int j=0; j<job_count; j++){
-    	if(graph[i][j] == 1){
-    	  tasks[i].add_child(&tasks[j]);
-    	}
-      }
-    }
-
-    for(int k=0; k<exit_tasks.size(); k++){
-      tasks[exit_tasks[k]].set_is_exit(true);
-    }
-	
-  return tasks;
-  
-}
-
-
-void calculate_and_set_priority(Task &task){
-
-  /**
-   *  Recursive implementation to compute the 
-   *  initial priority of tasks
-   */
-
-  if(task.get_is_exit()){
-    task.set_priority(task.get_cost());
-  } else{
-
-    std::vector<Task*> children = task.get_children();
-    std::vector<float> child_priorities;
-
-    /*
-     * Get the calculated total priority of children
-     */
-    for(int j=0; j<children.size(); j++){
-      calculate_and_set_priority(*children[j]);
-      child_priorities.push_back((*children[j]).get_priority());
-    }
-
-    float max_child_priority =
-      *std::max_element(std::begin(child_priorities), std::end(child_priorities));
-
-    float cost = task.get_cost();
-    float priority = cost + max_child_priority;
-    task.set_priority(priority);
-    
-  }
-
-}
-
   
 void task_prioritizing(std::vector<Task> &tasks)
 {
@@ -156,14 +74,25 @@ void task_prioritizing(std::vector<Task> &tasks)
   
 }
 
-
-
-
-
 void execution_unit_selection(std::vector<Task> &tasks)
 {
+
   sort_by_priority(tasks);
   
+  std::vector<Task> tasks_in_pool(tasks);
+  std::vector<Task> ready_queue;
+  
+
+
+  /**
+   * Add first task to ready queue
+   */
+  tasks[0].set_is_unlocked(true);
+  ready_queue.push_back(tasks[0]);
+  
+  
+  assign_core_or_cloud(tasks_in_pool,
+  		       ready_queue);
 }
 
 

@@ -57,6 +57,30 @@ public:
     return this->priority;
   }
 
+  void set_is_unlocked(bool unlocked){
+    this->is_unlocked = true;
+  }
+
+  bool get_is_unlocked(){
+    return this->is_unlocked;
+  }
+
+  void set_is_running(bool running){
+    this->is_running = running;
+  }
+
+  bool get_is_running(){
+    return this->is_running;
+  }
+
+  void set_is_finished(bool finished){
+    this->is_finished = finished;
+  }
+
+  bool get_is_finished(){
+    return this->is_finished;
+  }
+  
   void set_is_exit(bool is_exit){
     this->is_exit = is_exit;
   }
