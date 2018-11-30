@@ -33,9 +33,22 @@ Test for children
 
 
 
+/*
+
+  Code to see the initial priority values of tasks
+
+ */
+
+  std::cout<<"\n";
+  for(int i=0; i<10; i++){
+    std::cout<<"\n"<<i<<"\t"<<tasks[i].get_priority();
+  }
+  std::cout<<"\n";
 
 
 
 
 
  
+
+
