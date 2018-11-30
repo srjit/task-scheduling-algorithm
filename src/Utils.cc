@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 #include "Task.cc"
-#include "ExecutionUnit.cc"
+//#include "ExecutionUnit.cc"
 
 using namespace std;
 
@@ -193,6 +193,7 @@ void assign(std::vector<Task> &ready_queue,
 
     if(cpu != NULL){
       start(&task, cpu);
+
       /**
        * Remove the task from ready queue and assign it to running queue
        */
@@ -218,6 +219,35 @@ void print_ready_tasks(std::vector<Task> &ready_queue){
 
 
 void check_if_finished(std::vector<Task> &running_queue){
+
+  for(int i=0; i<running_queue.size(); i++){
+
+    Task task = running_queue[i];
+    if(task.get_progress() >= task.get_ticks_to_finish()){
+
+      /**
+       * Ticks have reached the ticks to finish the task
+       * Remove the task from running queue
+       * Free the CPU
+       */
+      task.set_is_running(false);
+      task.set_is_finished(true);
+      
+      // running_queue.erase(std::remove(running_queue.begin(),
+      // 				      running_queue.end(), 8),
+      // 			  running_queue.end());
+
+      ExecutionUnit* cpu = task.get_cpu();
+      cpu->set_available(true);
+
+      // remove the task from the running queue
+      running_queue.erase(std::remove(running_queue.begin(),
+				      running_queue.end(), task),
+			  running_queue.end());
+      
+    }
+    
+  }
   
 }
 

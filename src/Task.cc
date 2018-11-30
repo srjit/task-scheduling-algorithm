@@ -1,5 +1,7 @@
 #include <vector>
 
+#include "ExecutionUnit.cc"
+
 class Task{
 
   int id;
@@ -22,6 +24,8 @@ class Task{
   std::vector<Task*> parents;
   std::vector<Task*> children;
 
+  ExecutionUnit* cpu; 
+
   /**
    * Increment this unit by 1 tick
    * evey time it is running
@@ -32,7 +36,7 @@ class Task{
    * The ticks to finish a task depends on the CPU on
    * which is assigned to.
    */
-  int ticks_to_finish;
+  float ticks_to_finish;
   
 public:
 
@@ -145,4 +149,28 @@ public:
   void set_progress(int progress){
     this->progress = progress;
   }
+
+  float get_progress(){
+    return this->progress;
+  }
+
+
+  void set_cpu(ExecutionUnit* cpu){
+    this->cpu = cpu;
+  }
+
+  ExecutionUnit* get_cpu(){
+    return this->cpu;
+  }
+
+  /**
+   *  Overloading == operator for later use
+   */
+  bool operator==(const Task& _task){
+    return this->get_id() == _task.id;
+  }
+  
+
 };
+
+
