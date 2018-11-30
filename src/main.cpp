@@ -1,7 +1,7 @@
 #include <iostream>
 #include <array>
 
-#include "Utils.cc"
+
 #include "MCCScheduler.cc"
 
 using namespace std;

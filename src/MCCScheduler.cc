@@ -2,7 +2,7 @@
 #include <numeric>
 #include <algorithm>
 
-#include "Task.cc"
+#include "Utils.cc"
 
 using namespace std;
 
@@ -157,32 +157,13 @@ void task_prioritizing(std::vector<Task> &tasks)
 }
 
 
-bool compare_by_priority(Task t1, Task t2)
-{
 
- /**
-  *  Comparator for sorting the tasks by priority
-  */
-   return t1.get_priority() > t2.get_priority();
-   
-}
-
-
-void sort_by_priority(std::vector<Task> &tasks)
-{
-
- /**
-  *  Sorting tasks by priority in descending order
-  */
-  std::sort (tasks.begin(), tasks.end(), compare_by_priority);
-  
-}
 
 
 void execution_unit_selection(std::vector<Task> &tasks)
 {
-
   sort_by_priority(tasks);
+  
 }
 
 

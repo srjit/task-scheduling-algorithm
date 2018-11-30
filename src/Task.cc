@@ -13,6 +13,11 @@ class Task{
   float cost;
   char type;
   float priority;
+  
+  bool is_unlocked = false;
+  bool is_running = false;
+  bool is_finished = false;
+  
   bool is_exit = false;
   std::vector<Task*> parents;
   std::vector<Task*> children;
