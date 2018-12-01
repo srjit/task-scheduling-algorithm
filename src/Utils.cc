@@ -147,9 +147,11 @@ void calculate_and_set_priority(Task &task){
 }
 
 
-void start(Task* task,
-	   ExecutionUnit* cpu){
-
+void start(Task &task,
+  	   ExecutionUnit *cpu){
+  
+  task.set_is_running(true);
+  task.set_cpu(cpu);
   
 }
 
@@ -179,7 +181,7 @@ void assign(std::vector<Task> &ready_queue,
   /**
    * For each task in the ready queue, look
    * for availability of cores / cloud instance.
-   *nnnn
+   *
    * If some processing unit is available assign it to it.
    * set the ticks to finish for the task
    *
@@ -191,15 +193,24 @@ void assign(std::vector<Task> &ready_queue,
     ExecutionUnit* cpu = get_free_cpu(cpus);
     Task task = ready_queue[i];
 
+    std::cout<<"\nAssigning "<<task.get_id()<<" CPU"<<cpu->get_id();
+
     if(cpu != NULL){
-      start(&task, cpu);
+      std::cout<<"~~~~";
+      start(task, cpu);
 
       /**
        * Remove the task from ready queue and assign it to running queue
        */
+      running_queue.push_back(task);
+
+      ready_queue.erase(std::remove(ready_queue.begin(),
+				  ready_queue.end(), task),
+		      ready_queue.end());
+      
       
     }else{
-      std::cout<<"\nFoo";
+      std::cout<<"\n No free execution units available. Scheduler will wait until the next tick!";
       break;
     }
     
@@ -218,7 +229,28 @@ void print_ready_tasks(std::vector<Task> &ready_queue){
 }
 
 
-void check_if_finished(std::vector<Task> &running_queue){
+void stop_execution(Task &task,
+		    std::vector<Task> &running_queue){
+
+  task.set_is_running(false);
+  task.set_is_finished(true);
+      
+  // Free the CPU
+  ExecutionUnit* cpu = task.get_cpu();
+  cpu->set_available(true);
+
+  // remove the task from the running queue - wouldn't this
+  // be a ConcurrentExecutionException ?? -
+  // If there is, keep indices to remove together
+  // and do an iteration at the end
+  // Need to check later - Sreejith
+  running_queue.erase(std::remove(running_queue.begin(),
+				  running_queue.end(), task),
+		      running_queue.end());
+    
+}
+
+void remove_finished_tasks(std::vector<Task> &running_queue){
 
   for(int i=0; i<running_queue.size(); i++){
 
@@ -230,21 +262,7 @@ void check_if_finished(std::vector<Task> &running_queue){
        * Remove the task from running queue
        * Free the CPU
        */
-      task.set_is_running(false);
-      task.set_is_finished(true);
-      
-      // running_queue.erase(std::remove(running_queue.begin(),
-      // 				      running_queue.end(), 8),
-      // 			  running_queue.end());
-
-      ExecutionUnit* cpu = task.get_cpu();
-      cpu->set_available(true);
-
-      // remove the task from the running queue - wouldn't this
-      // be a ConcurrentExecutionException ?? - Need to check later - Sreejith
-      running_queue.erase(std::remove(running_queue.begin(),
-				      running_queue.end(), task),
-			  running_queue.end());
+      stop_execution(task, running_queue);
       
     }
     
@@ -254,6 +272,37 @@ void check_if_finished(std::vector<Task> &running_queue){
 
 void try_unlocking(std::vector<Task> &tasks_in_pool,
 		   std::vector<Task> &ready_queue){
+
+  /**
+   *  For every task in pool,
+   * Check if all parents have finished execution.
+   *
+   * If they have, add it to ready queue and remove
+   * from tasks_in_pool
+   */
+  for(int i=0; i<tasks_in_pool.size(); i++){
+
+    Task task = tasks_in_pool[i];
+    std::vector<Task*> parents =  task.get_parents();
+    bool can_start = true;
+    
+    for(int j=0; j<parents.size(); j++){
+      if(!(parents[j]->get_is_finished())){
+      	can_start = false;
+      	break;
+      }
+    }
+
+    if(can_start){
+      std::cout<<"\n Adding "<<task.get_id()<< " to the ready queue";
+      task.set_is_unlocked(true);
+      ready_queue.push_back(task);
+      tasks_in_pool.erase(std::remove(tasks_in_pool.begin(),
+    				      tasks_in_pool.end(), task),
+    			  tasks_in_pool.end());
+    }
+  
+  }
   
 }
 
@@ -266,6 +315,10 @@ void run(std::vector<Task> &running_queue){
    * set its execution unit availablity to true.
    *
    */
+  for(int i=0; i<running_queue.size(); i++){
+    Task task = running_queue[i];
+    task.increment_progress();
+  }
   
 }
 
@@ -280,27 +333,31 @@ void run_scheduler(std::vector<Task> &tasks_in_pool,
    *  Every time it goes into this loop,
    *  it is one tick (shown in Fig. 3)
    */
+  int i=0;
   do{
 
     /**
      * If any job has finished, free the CPU
      * on which it has been running
      */
-    check_if_finished(running_queue);
+    remove_finished_tasks(running_queue);
     try_unlocking(tasks_in_pool, ready_queue);
     
     if (ready_queue.size() > 0){
 
-      // sort the ready queue by priority
+      std::cout<<">>>>>>>";
+    //   // sort the ready queue by priority
       assign(ready_queue,
-	     running_queue,
-	     cpus);
-      
-      sleep(1);
+    	     running_queue,
+    	     cpus);
 
-      // increment the running tick for every running task
-      run(running_queue);
+    //   std::cout<<"\nTick: "<<i++;
+    //   sleep(1);
+
+    //   // increment the running tick for every running task
+    //   run(running_queue);
     }
+    sleep(20);
 	
   }while(tasks_in_pool.size() > 0);
 
