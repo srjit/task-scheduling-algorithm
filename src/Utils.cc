@@ -46,18 +46,18 @@ std::vector<ExecutionUnit*> get_execution_units(int core_count){
 }
 
 
-bool compare_by_priority(Task t1, Task t2)
+bool compare_by_priority(Task* t1, Task* t2)
 {
 
   /**
    *  Comparator for sorting the tasks by priority
    */
-  return t1.get_priority() > t2.get_priority();
+  return t1->get_priority() > t2->get_priority();
    
 }
 
 
-void sort_by_priority(std::vector<Task> &tasks)
+void sort_by_priority(std::vector<Task*> &tasks)
 {
 
   /**
@@ -68,7 +68,7 @@ void sort_by_priority(std::vector<Task> &tasks)
 }
 
 
-std::vector<Task> construct_tasks(int **graph,
+std::vector<Task*> construct_tasks(int **graph,
 				  int job_count,
 				  std::vector<int> exit_tasks)
 {
@@ -82,18 +82,20 @@ std::vector<Task> construct_tasks(int **graph,
    *  as well as child tasks for easy traversal.
    *
    */
-  std::vector<Task> tasks;
+  std::vector<Task*> tasks;
 
   /**
    * Find the parent(s) of each task
    */
   for(int j=0; j<job_count; j++){
-    Task task(j+1);
+    Task* task = new Task(j+1);
+
     for(int i=0; i<j; i++){
       if (graph[i][j] == 1){
-	task.add_parent(&tasks[i]);
+	task->add_parent(tasks[i]);
       }
     }
+    
     tasks.push_back(task);
   }
 
@@ -103,13 +105,13 @@ std::vector<Task> construct_tasks(int **graph,
   for(int i=0; i<job_count; i++){
     for(int j=0; j<job_count; j++){
       if(graph[i][j] == 1){
-	tasks[i].add_child(&tasks[j]);
+	tasks[i]->add_child(tasks[j]);
       }
     }
   }
 
   for(int k=0; k<exit_tasks.size(); k++){
-    tasks[exit_tasks[k]].set_is_exit(true);
+    tasks[exit_tasks[k]]->set_is_exit(true);
   }
 	
   return tasks;
@@ -120,34 +122,34 @@ std::vector<Task> construct_tasks(int **graph,
 
 
 
-void calculate_and_set_priority(Task &task){
+void calculate_and_set_priority(Task *task){
 
   /**
    *  Recursive implementation to compute the 
    *  initial priority of tasks
    */
 
-  if(task.get_is_exit()){
-    task.set_priority(task.get_cost());
+  if(task->get_is_exit()){
+    task->set_priority(task->get_cost());
   } else{
 
-    std::vector<Task*> children = task.get_children();
+    std::vector<Task*> children = task->get_children();
     std::vector<float> child_priorities;
 
     /*
      * Get the calculated total priority of children
      */
     for(int j=0; j<children.size(); j++){
-      calculate_and_set_priority(*children[j]);
-      child_priorities.push_back((*children[j]).get_priority());
+      calculate_and_set_priority(children[j]);
+      child_priorities.push_back((children[j])->get_priority());
     }
 
     float max_child_priority =
       *std::max_element(std::begin(child_priorities), std::end(child_priorities));
 
-    float cost = task.get_cost();
+    float cost = task->get_cost();
     float priority = cost + max_child_priority;
-    task.set_priority(priority);
+    task->set_priority(priority);
     
   }
 
@@ -289,8 +291,8 @@ void stop_execution(Task *task,
   task->set_is_running(false);
   task->set_is_finished(true);
 
-  std::cout<<"Finished execution of task: "<<task->get_id()<<
-    "and setting"<< task->get_cpu()->get_id()<< " to available\n";
+  std::cout<<"Finished execution of task "<<task->get_id()<<
+    " and setting CPU"<< task->get_cpu()->get_id()<< " to available\n";
       
   // Free the CPU
   task->get_cpu()->set_available(true);
@@ -303,7 +305,7 @@ void stop_execution(Task *task,
   running_queue.erase(std::remove(running_queue.begin(),
   				  running_queue.end(), task),
   		      running_queue.end());
-    
+
 }
 
 void remove_finished_tasks(std::vector<Task*> &running_queue){
@@ -320,6 +322,7 @@ void remove_finished_tasks(std::vector<Task*> &running_queue){
        */
       stop_execution(task,
 		     running_queue);
+
     }
     
   }
@@ -345,6 +348,7 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
 
     
     std::vector<Task*> parents =  task->get_parents();
+
     bool can_start = true;
     
     for(int j=0; j<parents.size(); j++){
@@ -355,7 +359,7 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
     }
 
     if(can_start){
-      std::cout<<"\n Adding "<<task->get_id()<< " to the ready queue";
+      std::cout<<"Adding "<<task->get_id()<< " to the ready queue\n\n";
       task->set_is_unlocked(true);
       ready_queue.push_back(task);
       tasks_in_pool.erase(std::remove(tasks_in_pool.begin(),
@@ -408,7 +412,6 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
    */
   int i=0;
   do{
-
     std::cout<<"\n--------------   Beginning Tick "<<++i<< "   ---------------";
     /**
      * If any job has finished, free the CPU
@@ -429,7 +432,7 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
     }
 
     run(running_queue);
-    sleep(2);
+    sleep(3);
     
   }while(tasks_in_pool.size() > 0);
 

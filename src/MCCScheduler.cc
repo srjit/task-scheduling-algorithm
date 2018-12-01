@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void primary_assignment(std::vector<Task> &tasks,
+void primary_assignment(std::vector<Task*> &tasks,
 			std::array<std::array<int,3>, 10> core_table,
 			int job_count,
 			int core_count,
@@ -54,13 +54,13 @@ void primary_assignment(std::vector<Task> &tasks,
       cost = task_mintime_cloud[i];
     }
 
-     tasks[i].set_cost(cost);
+     tasks[i]->set_cost(cost);
   }
 
 }
 
   
-void task_prioritizing(std::vector<Task> &tasks)
+void task_prioritizing(std::vector<Task*> &tasks)
 {
 
   /**
@@ -74,7 +74,7 @@ void task_prioritizing(std::vector<Task> &tasks)
   
 }
 
-void execution_unit_selection(std::vector<Task> &tasks,
+void execution_unit_selection(std::vector<Task*> &tasks,
 			      std::array<std::array<int,3>, 10> core_table,
 			      int core_count)
 {
@@ -90,7 +90,7 @@ void execution_unit_selection(std::vector<Task> &tasks,
   // adding every task from 1 to 9 into pool -
   // task with index 0 is ready
   for(int k=1; k< tasks.size();k++){
-    tasks_in_pool.push_back(&tasks[k]);
+    tasks_in_pool.push_back(tasks[k]);
   }
   
   std::vector<Task*> ready_queue;
@@ -98,9 +98,9 @@ void execution_unit_selection(std::vector<Task> &tasks,
   /**
    * Add first task to ready queue
    */
-  tasks[0].set_is_unlocked(true);
-  ready_queue.push_back(&tasks[0]);
-  
+  tasks[0]->set_is_unlocked(true);
+  ready_queue.push_back(tasks[0]);
+
   run_scheduler(tasks_in_pool,
   		ready_queue,
   		cpus,
@@ -122,26 +122,29 @@ void initial_scheduling(int **graph,
   std::vector<int> exit_task_ids;
   exit_task_ids.push_back(9);
 
-  std::vector<Task> tasks = construct_tasks(graph,
+  std::vector<Task*> tasks = construct_tasks(graph,
 					    job_count,
 					    exit_task_ids);
+
   primary_assignment(tasks,
-		     core_table,
-		     job_count,
-		     core_count,
-		     c_task_attributes);
+  		     core_table,
+  		     job_count,
+  		     core_count,
+  		     c_task_attributes);
 
 
   task_prioritizing(tasks);
-  execution_unit_selection(tasks,
-			   core_table,
-			   core_count);
 
   
-  std::cout<<"\n Current order of execution with priorities  \n";
-  for(int i=0; i<10; i++){
-    std::cout<<"\n"<<tasks[i].get_id()<<"\t"<<tasks[i].get_priority();
-  }
-  std::cout<<"\n";
+  execution_unit_selection(tasks,
+  			   core_table,
+  			   core_count);
+
+  
+  // std::cout<<"\n Current order of execution with priorities  \n";
+  // for(int i=0; i<10; i++){
+  //   std::cout<<"\n"<<tasks[i].get_id()<<"\t"<<tasks[i].get_priority();
+  // }
+  // std::cout<<"\n";
   
 }
