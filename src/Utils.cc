@@ -313,7 +313,6 @@ void remove_finished_tasks(std::vector<Task*> &running_queue){
     
     Task* task = running_queue[i];
     if(task->get_progress() >= task->get_ticks_to_finish()){
-
       /**
        * Ticks have reached the ticks to finish the task
        * Remove the task from running queue
@@ -379,7 +378,7 @@ void run(std::vector<Task*> &running_queue){
   for(int i=0; i<running_queue.size(); i++){
     running_queue[i]->increment_progress();
     std::cout<<"\nTask "<<running_queue[i]->get_id()<<" is "
-	     <<running_queue[i]->get_progress()<<"% complete.\n";        
+	     <<running_queue[i]->get_progress_percentage()<<"% complete.\n";        
   }
   
 }
@@ -429,13 +428,9 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
 
     }
 
-
-    // // increment the running tick for every running task
-    // std::cout<<"\nPool queue size:"<<tasks_in_pool.size()<<"\n";
-    // std::cout<<"\nRunning queue size:"<<running_queue.size()<<"\n";
-    // std::cout<<"\nReady queue size:"<<ready_queue.size()<<"\n";      
-    //    run(running_queue);
-    sleep(3);
+    run(running_queue);
+    sleep(2);
+    
   }while(tasks_in_pool.size() > 0);
 
 }

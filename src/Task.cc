@@ -151,9 +151,13 @@ public:
   }
 
   float get_progress(){
-    return (this->progress)/(this->ticks_to_finish)*100;
+    return this->progress;
   }
 
+  float get_progress_percentage(){
+    return (this->progress)/(this->ticks_to_finish)*100;
+  }
+  
 
   void set_cpu(ExecutionUnit* cpu){
     this->cpu = cpu;
