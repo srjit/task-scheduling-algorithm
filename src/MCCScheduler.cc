@@ -81,23 +81,30 @@ void execution_unit_selection(std::vector<Task> &tasks,
 
   sort_by_priority(tasks);
 
-  std::vector<ExecutionUnit> cpus = get_execution_units(core_count);
+  std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
   std::cout<<"\nThere are "<< cpus.size() <<" execution units available\n";
+
   
-  std::vector<Task> tasks_in_pool(tasks);
-  std::vector<Task> ready_queue;
+  std::vector<Task*> tasks_in_pool;
+
+  // adding every task from 1 to 9 into pool -
+  // task with index 0 is ready
+  for(int k=1; k< tasks.size();k++){
+    tasks_in_pool.push_back(&tasks[k]);
+  }
+  
+  std::vector<Task*> ready_queue;
 
   /**
    * Add first task to ready queue
    */
   tasks[0].set_is_unlocked(true);
-  ready_queue.push_back(tasks[0]);
-  
+  ready_queue.push_back(&tasks[0]);
   
   run_scheduler(tasks_in_pool,
-		ready_queue,
-		cpus,
-		core_table);
+  		ready_queue,
+  		cpus,
+  		core_table);
 }
 
 

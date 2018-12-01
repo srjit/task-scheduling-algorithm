@@ -151,7 +151,7 @@ public:
   }
 
   float get_progress(){
-    return this->progress;
+    return (this->progress)/(this->ticks_to_finish)*100;
   }
 
 
