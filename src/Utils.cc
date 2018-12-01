@@ -183,7 +183,7 @@ void start(Task &task,
 
 
 ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit> &cpus,
-			    Task &task){
+			    Task& task){
 
   if (task.get_type() == 'c'){
 
@@ -221,7 +221,7 @@ ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit> &cpus,
     
     return free_unit;
   }
-  
+  return NULL;
 }
 
 
@@ -243,27 +243,21 @@ void assign(std::vector<Task> &ready_queue,
   for(int i=0; i<ready_queue.size(); i++){
 
     Task task = ready_queue[i];
-    ExecutionUnit* cpu = get_free_cpu(cpus, task);
 
-    //    std::cout<<"\nAssigning "<<task.get_id()<<" CPU"<<cpu->get_id();
+    ExecutionUnit* cpu = get_free_cpu(cpus, task);
+    std::cout<<"\nAssigning "<<task.get_id()<<" CPU"<<cpu->get_id();
 
     if(cpu != NULL){
       start(task, cpu, core_table);
 
-      std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
-      std::cout<<task.get_id()<<"\n";
-      std::cout<<task.get_progress()<<"\n";
-      std::cout<<task.get_ticks_to_finish()<<"\n";
-      std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";      
-      
 
       /**
        * Remove the task from ready queue and assign it to running queue
        */
       running_queue.push_back(task);
       ready_queue.erase(std::remove(ready_queue.begin(),
-				  ready_queue.end(), task),
-		      ready_queue.end());
+      				  ready_queue.end(), task),
+      		      ready_queue.end());
     }else{
       std::cout<<"No free execution units available. Scheduler will wait until the next tick!\n";
       break;
@@ -375,10 +369,9 @@ void run(std::vector<Task> &running_queue){
    *
    */
   for(int i=0; i<running_queue.size(); i++){
-    Task task = running_queue[i];
-    float progress = task.get_progress() + 1.0;
-    std::cout<<"Progress outside-->"<<task.get_id()<<"=="<<progress<<"\n";
-    task.set_progress(progress);
+    running_queue[i].increment_progress();
+    std::cout<<"Progress update for "<<running_queue[i].get_id()<<" :"
+	     <<running_queue[i].get_progress()<<"\n";        
   }
   
 }

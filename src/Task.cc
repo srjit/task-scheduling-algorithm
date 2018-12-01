@@ -142,13 +142,12 @@ public:
     return this->ticks_to_finish;
   }
 
-  // void increment_progress(){
-  //   this->prog
-  // }
+  void increment_progress(){
+    this->progress += 1.0;
+  }
 
   void set_progress(float progress){
     this->progress = progress;
-    std::cout<<"Progress:"<<this->progress<<"\n";
   }
 
   float get_progress(){

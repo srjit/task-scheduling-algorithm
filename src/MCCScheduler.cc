@@ -75,6 +75,7 @@ void task_prioritizing(std::vector<Task> &tasks)
 }
 
 void execution_unit_selection(std::vector<Task> &tasks,
+			      std::array<std::array<int,3>, 10> core_table,
 			      int core_count)
 {
 
@@ -94,8 +95,9 @@ void execution_unit_selection(std::vector<Task> &tasks,
   
   
   run_scheduler(tasks_in_pool,
-			  ready_queue,
-			  cpus);
+		ready_queue,
+		cpus,
+		core_table);
 }
 
 
@@ -125,6 +127,7 @@ void initial_scheduling(int **graph,
 
   task_prioritizing(tasks);
   execution_unit_selection(tasks,
+			   core_table,
 			   core_count);
 
   
