@@ -1,6 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include <unistd.h>
+#include <array>
 
 #include "Task.cc"
 //#include "ExecutionUnit.cc"
@@ -22,6 +23,8 @@ std::vector<ExecutionUnit> get_execution_units(int core_count){
 
   /**
    * One unit for every CPU core
+   * Order the processor in descending order of power
+   * - this might be important
    */
   for(int i=0; i<core_count; i++){
     ExecutionUnit eu(i+1, 'l');
@@ -148,35 +151,84 @@ void calculate_and_set_priority(Task &task){
 
 
 void start(Task &task,
-  	   ExecutionUnit *cpu){
+  	   ExecutionUnit *cpu,
+	   std::array<std::array<int,3>, 10> core_table){
   
   task.set_is_running(true);
   task.set_cpu(cpu);
+
+  int cpu_id = cpu->get_id();
+  int task_index = task.get_id() - 1;
+  int cpu_index = cpu_id - 1;
+
+  float ticks_to_finish;
+  
+  if(cpu_id <= 3){
+    // local CPU - pick time from core table
+    ticks_to_finish = (float)core_table[task_index][cpu_index];
+    std::cout<<"\nTicks to finish for task "<<task.get_id()<<" :"<<ticks_to_finish<<"\n";
+  } else{
+    // hard coding for now
+    ticks_to_finish = 5;
+    std::cout<<"\nTicks to finish for cloud task "<<task.get_id()<<" :"
+	     <<ticks_to_finish<<"\n";
+  }
+  task.set_ticks_to_finish(ticks_to_finish);
+
+  std::cout<<"\nRunning task "<<task.get_id()<<" on CPU with ID: "<<cpu->get_id()<<"\n";
   
 }
 
 
 
 
-ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit> &cpus){
+ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit> &cpus,
+			    Task &task){
 
-  ExecutionUnit* free_unit = NULL;
-  
-  for(int i=0; i< cpus.size(); i++){
-    if(cpus[i].get_available()){
-      free_unit = &cpus[i];
-      break;
+  if (task.get_type() == 'c'){
+
+    ExecutionUnit* cloud_cpu = &cpus[cpus.size() - 1];
+
+    if (cloud_cpu->get_available()){
+      return cloud_cpu;
     }
-  }
 
-  return free_unit;
+    return NULL;
+    
+  } else {
+
+
+  
+    ExecutionUnit* free_unit = NULL;
+
+    /*
+     *  Priority of CPUS
+     *  If most powerful local core (CPU 3) is available return it
+     *  Else try cloud cpu (CPU 4)
+     *  Else try local cpu (CPU 2)
+     *  Else try local cpu (CPU 1)
+     *
+     */
+    if(cpus[cpus.size()-2].get_available()){
+      free_unit = &cpus[cpus.size()-2];
+    } else if (cpus[cpus.size()-1].get_available()){
+      free_unit = &cpus[cpus.size()-1];
+    } else if (cpus[cpus.size()-3].get_available()){
+      free_unit = &cpus[cpus.size()-3];
+    } else if (cpus[cpus.size()-4].get_available()){
+      free_unit = &cpus[cpus.size()-4];
+    } 
+    
+    return free_unit;
+  }
   
 }
 
 
 void assign(std::vector<Task> &ready_queue,
 	    std::vector<Task> &running_queue,	    
-	    std::vector<ExecutionUnit> &cpus){
+	    std::vector<ExecutionUnit> &cpus,
+	    std::array<std::array<int,3>, 10> core_table){
 
   /**
    * For each task in the ready queue, look
@@ -190,27 +242,30 @@ void assign(std::vector<Task> &ready_queue,
    */
   for(int i=0; i<ready_queue.size(); i++){
 
-    ExecutionUnit* cpu = get_free_cpu(cpus);
     Task task = ready_queue[i];
+    ExecutionUnit* cpu = get_free_cpu(cpus, task);
 
-    std::cout<<"\nAssigning "<<task.get_id()<<" CPU"<<cpu->get_id();
+    //    std::cout<<"\nAssigning "<<task.get_id()<<" CPU"<<cpu->get_id();
 
     if(cpu != NULL){
-      std::cout<<"~~~~";
-      start(task, cpu);
+      start(task, cpu, core_table);
+
+      std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";
+      std::cout<<task.get_id()<<"\n";
+      std::cout<<task.get_progress()<<"\n";
+      std::cout<<task.get_ticks_to_finish()<<"\n";
+      std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n";      
+      
 
       /**
        * Remove the task from ready queue and assign it to running queue
        */
       running_queue.push_back(task);
-
       ready_queue.erase(std::remove(ready_queue.begin(),
 				  ready_queue.end(), task),
 		      ready_queue.end());
-      
-      
     }else{
-      std::cout<<"\n No free execution units available. Scheduler will wait until the next tick!";
+      std::cout<<"No free execution units available. Scheduler will wait until the next tick!\n";
       break;
     }
     
@@ -234,6 +289,8 @@ void stop_execution(Task &task,
 
   task.set_is_running(false);
   task.set_is_finished(true);
+
+  std::cout<<"Finished execution of task: "<<task.get_id()<<"\n";
       
   // Free the CPU
   ExecutionUnit* cpu = task.get_cpu();
@@ -253,9 +310,11 @@ void stop_execution(Task &task,
 void remove_finished_tasks(std::vector<Task> &running_queue){
 
   for(int i=0; i<running_queue.size(); i++){
-
+    
     Task task = running_queue[i];
     if(task.get_progress() >= task.get_ticks_to_finish()){
+
+      std::cout<<"Finished------------->>\n";
 
       /**
        * Ticks have reached the ticks to finish the task
@@ -317,7 +376,9 @@ void run(std::vector<Task> &running_queue){
    */
   for(int i=0; i<running_queue.size(); i++){
     Task task = running_queue[i];
-    task.increment_progress();
+    float progress = task.get_progress() + 1.0;
+    std::cout<<"Progress outside-->"<<task.get_id()<<"=="<<progress<<"\n";
+    task.set_progress(progress);
   }
   
 }
@@ -325,7 +386,8 @@ void run(std::vector<Task> &running_queue){
 
 void run_scheduler(std::vector<Task> &tasks_in_pool,
 		   std::vector<Task> &ready_queue,
-		   std::vector<ExecutionUnit> &cpus){
+		   std::vector<ExecutionUnit> &cpus,
+		   std::array<std::array<int,3>, 10> core_table){
 
   std::vector<Task> running_queue;
   
@@ -345,20 +407,21 @@ void run_scheduler(std::vector<Task> &tasks_in_pool,
     
     if (ready_queue.size() > 0){
 
-      std::cout<<">>>>>>>";
-    //   // sort the ready queue by priority
+    // sort the ready queue by priority
       assign(ready_queue,
     	     running_queue,
-    	     cpus);
+    	     cpus,
+	     core_table);
 
-    //   std::cout<<"\nTick: "<<i++;
-    //   sleep(1);
-
-    //   // increment the running tick for every running task
-    //   run(running_queue);
     }
-    sleep(20);
-	
+
+    std::cout<<"\nTick: "<<i++;
+    // increment the running tick for every running task
+    std::cout<<"\nPool queue size:"<<tasks_in_pool.size()<<"\n";
+    std::cout<<"\nRunning queue size:"<<running_queue.size()<<"\n";
+    std::cout<<"\nReady queue size:"<<ready_queue.size()<<"\n";      
+    run(running_queue);
+    sleep(1);
   }while(tasks_in_pool.size() > 0);
 
 }

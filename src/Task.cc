@@ -134,7 +134,7 @@ public:
     this->children.push_back(child);
   }
 
-  void set_ticks_to_finish(int ticks){
+  void set_ticks_to_finish(float ticks){
     this->ticks_to_finish = ticks;
   }
 
@@ -142,12 +142,13 @@ public:
     return this->ticks_to_finish;
   }
 
-  void increment_progress(){
-    this->progress += 1;
-  }
+  // void increment_progress(){
+  //   this->prog
+  // }
 
-  void set_progress(int progress){
+  void set_progress(float progress){
     this->progress = progress;
+    std::cout<<"Progress:"<<this->progress<<"\n";
   }
 
   float get_progress(){
