@@ -337,27 +337,24 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
    * If they have, add it to ready queue and remove
    * from tasks_in_pool
    */
-  std::cout<<"Trying to unlock tasks in pool";
+  std::cout<<"\n\nTrying to unlock tasks in pool...\n";
+  
   for(int i=0; i<tasks_in_pool.size(); i++){
 
     Task* task = tasks_in_pool[i];
-    std::cout<<"Checking task "<<task->get_id()<<"\n";
+    std::cout<<"Checking if task "<<task->get_id()<<" can be unlocked\n";
 
     
     std::vector<Task*> parents =  task->get_parents();
     bool can_start = true;
-    std::cout<<"Parents: ";
     
     for(int j=0; j<parents.size(); j++){
-      std::cout<<parents[j]->get_id()<<"\t";
       if(!(parents[j]->get_is_finished())){
       	can_start = false;
       	break;
       }
     }
 
-    std::cout<<"==============";
-    
     if(can_start){
       std::cout<<"\n Adding "<<task->get_id()<< " to the ready queue";
       task->set_is_unlocked(true);
