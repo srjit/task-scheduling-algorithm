@@ -260,9 +260,11 @@ void assign(std::vector<Task*> &ready_queue,
     ExecutionUnit* cpu = get_free_cpu(cpus,
 				      _task,
 				      ready_queue);
-    std::cout<<"\nAssigning "<<_task->get_id()<<" CPU"<<cpu->get_id();
 
     if(cpu != NULL){
+
+      std::cout<<"\nAssigning "<<_task->get_id()<<" CPU"<<cpu->get_id();
+
       start(_task, cpu, core_table);
 
 
@@ -278,7 +280,7 @@ void assign(std::vector<Task*> &ready_queue,
     
   }
 
-
+  //  std::cout<<"%%%%%%%%%%%"<<to_remove.size();
   for(int k=0; k<to_remove.size(); k++){
     int index = to_remove[k];
     ready_queue.erase(ready_queue.begin() + index);
@@ -451,7 +453,7 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
     }
 
     run(running_queue);
-    sleep(3);
+    sleep(1);
     
   }while(tasks_in_pool.size() > 0);
 
