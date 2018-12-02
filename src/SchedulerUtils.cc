@@ -6,13 +6,16 @@
 using namespace std;
 
 void stop_execution(Task *task,
-		    std::vector<Task*> &running_queue){
+		    std::vector<Task*> &running_queue,
+		    int finish_tick){
 
   task->set_is_running(false);
   task->set_is_finished(true);
+  task->set_finish_time(finish_tick);
 
   std::cout<<"Finished execution of task "<<task->get_id()<<
-    " and setting CPU"<< task->get_cpu()->get_id()<< " to available\n";
+    " and setting "<<task->get_cpu()->get_type()<<" CPU with ID "<<
+    task->get_cpu()->get_id()<< " to available\n";
       
   task->get_cpu()->set_available(true);
   running_queue.erase(std::remove(running_queue.begin(),
@@ -22,7 +25,8 @@ void stop_execution(Task *task,
 }
 
 
-void remove_finished_tasks(std::vector<Task*> &running_queue){
+void remove_finished_tasks(std::vector<Task*> &running_queue,
+			   int finish_tick){
 
   std::cout<<"\nElements in running queue: "<<running_queue.size()<<"\n";
   for(int i=0; i<running_queue.size(); i++){
@@ -35,7 +39,8 @@ void remove_finished_tasks(std::vector<Task*> &running_queue){
        * Free the CPU
        */
       stop_execution(task,
-		     running_queue);
+		     running_queue,
+		     finish_tick);
 
     }
   }
@@ -212,7 +217,7 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
      * If any job has finished, free the CPU
      * onto_remove[i] which it has been running
      */
-    remove_finished_tasks(running_queue);
+    remove_finished_tasks(running_queue, i);
     show_free_units(cpus);
     try_unlocking(tasks_in_pool, ready_queue);
     
@@ -227,7 +232,7 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
     }
 
     run(running_queue);
-    sleep(1);
+    //    sleep(1);
     
   }while(tasks_in_pool.size() > 0 || running_queue.size()>0);
 

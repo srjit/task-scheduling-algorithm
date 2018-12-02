@@ -140,12 +140,12 @@ void calculate_and_set_priority(Task *task){
     }
 
     float max_child_priority =
-      *std::max_element(std::begin(child_priorities), std::end(child_priorities));
+      *std::max_element(std::begin(child_priorities),
+			std::end(child_priorities));
 
     float cost = task->get_cost();
     float priority = cost + max_child_priority;
     task->set_priority(priority);
-    
   }
 
 }
@@ -209,7 +209,7 @@ void print_ready_tasks(std::vector<Task> &ready_queue){
 }
 
 
-void  show_free_units(std::vector<ExecutionUnit*> &cpus){
+void show_free_units(std::vector<ExecutionUnit*> &cpus){
 
   std::cout<<"Free CPUs: ";
   for(int k=0; k<cpus.size(); k++){
@@ -218,5 +218,36 @@ void  show_free_units(std::vector<ExecutionUnit*> &cpus){
     }
   }
   std::cout<<"\n";
+  
+}
+
+
+void calculate_ready_times(std::vector<Task*> &tasks){
+
+  
+  for(int i=0; i<tasks.size(); i++){
+
+    std::vector<float> finish_times;
+    std::vector<Task*> parents = tasks[i]->get_parents();
+    
+    for(int j=0; j<parents.size(); j++){
+      float finish_time = parents[j]->get_finish_time();
+      finish_times.push_back(finish_time);
+    }
+
+    float max_finish_time = 0;
+    if(finish_times.size() > 0){
+      max_finish_time = *std::max_element(std::begin(finish_times),
+					  std::end(finish_times));
+    }
+    
+    tasks[i]->set_ready_time(max_finish_time);
+  }
+  
+}
+
+
+void compute_prerequisites_for_optimization(std::vector<Task*> &tasks){
+  calculate_ready_times(tasks);
   
 }

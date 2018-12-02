@@ -24,8 +24,13 @@ class Task{
   std::vector<Task*> parents;
   std::vector<Task*> children;
 
-  ExecutionUnit* cpu; 
+  ExecutionUnit* cpu;
 
+  int execution_unit_id;
+  float finish_time;
+  float ready_time = 0;
+  
+  
   /**
    * Increment this unit by 1 tick
    * evey time it is running
@@ -165,10 +170,31 @@ public:
 
   void set_cpu(ExecutionUnit* cpu){
     this->cpu = cpu;
+    this->execution_unit_id = cpu->get_id();
   }
 
   ExecutionUnit* get_cpu(){
     return this->cpu;
+  }
+
+  int get_execution_unit_id(){
+    return this->execution_unit_id;
+  }
+
+  void set_finish_time(float finish_time){
+    this->finish_time = finish_time - 1;
+  }
+
+  float get_finish_time(){
+    return this->finish_time;
+  }
+  
+  void set_ready_time(float ready_time){
+    this->ready_time = ready_time;
+  }
+
+  float get_ready_time(){
+    return this->ready_time;
   }
 
   /**

@@ -67,3 +67,21 @@ Test for children
       ready_queue.erase(std::remove(ready_queue.begin(),
 				    ready_queue.end(), _task),
 			ready_queue.end());
+
+
+
+
+
+
+//  task migration
+// see all tasks
+
+
+  std::cout<<"Execution Units selected: \n";
+  for(int i=0; i<tasks.size(); i++){
+    //    std::cout<<tasks[i]->get_execution_unit_id()<<"\t";
+    std::cout<<tasks[i]->get_id()<<"\t";    
+  }
+  std::cout<<"\n";
+
+

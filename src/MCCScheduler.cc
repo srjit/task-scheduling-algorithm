@@ -118,6 +118,8 @@ void initial_scheduling(int **graph,
 
   /**
    *  Core of the initial component of  the MCC Scheduler
+   *
+   *  Initializing the components before beginning execution 
    */
   std::vector<int> exit_task_ids;
   exit_task_ids.push_back(9);
@@ -126,6 +128,12 @@ void initial_scheduling(int **graph,
 					    job_count,
 					    exit_task_ids);
 
+  /*
+   *************************************************
+   *         Part I:  Initial Scheduling           *
+   *                                               *
+   *************************************************
+   */ 
   primary_assignment(tasks,
   		     core_table,
   		     job_count,
@@ -137,5 +145,16 @@ void initial_scheduling(int **graph,
   execution_unit_selection(tasks,
   			   core_table,
   			   core_count);
+
+
+  /**
+   *************************************************     
+   *        Part II: Task Migration                *
+   *                                               *
+   *************************************************
+   */
+
+
+    compute_prerequisites_for_optimization(tasks);
   
 }
