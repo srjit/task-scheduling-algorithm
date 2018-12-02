@@ -4,7 +4,6 @@
 #include <array>
 
 #include "Task.cc"
-//#include "ExecutionUnit.cc"
 
 using namespace std;
 
@@ -119,9 +118,6 @@ std::vector<Task*> construct_tasks(int **graph,
 }
 
 
-
-
-
 void calculate_and_set_priority(Task *task){
 
   /**
@@ -186,8 +182,6 @@ void start(Task *task,
 }
 
 
-
-
 ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
 			    Task* task,
 			    std::vector<Task*> &ready_queue){
@@ -195,11 +189,9 @@ ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
   if (task->get_type() == 'c'){
 
     ExecutionUnit* cloud_cpu = cpus[cpus.size() - 1];
-
     if (cloud_cpu->get_available()){
       return cloud_cpu;
     }
-
     return NULL;
     
   } else {
@@ -256,7 +248,6 @@ void assign(std::vector<Task*> &ready_queue,
   for(int i=0; i<ready_queue.size(); i++){
 
     Task* _task = ready_queue[i];
-
     ExecutionUnit* cpu = get_free_cpu(cpus,
 				      _task,
 				      ready_queue);
@@ -264,10 +255,7 @@ void assign(std::vector<Task*> &ready_queue,
     if(cpu != NULL){
 
       std::cout<<"\nAssigning "<<_task->get_id()<<" CPU"<<cpu->get_id();
-
       start(_task, cpu, core_table);
-
-
       /**
        * Remove the task from ready queue and assign it to running queue
        */
@@ -323,6 +311,7 @@ void stop_execution(Task *task,
 
 }
 
+
 void remove_finished_tasks(std::vector<Task*> &running_queue){
 
   std::cout<<"\nElements in running queue: "<<running_queue.size()<<"\n";
@@ -339,10 +328,10 @@ void remove_finished_tasks(std::vector<Task*> &running_queue){
 		     running_queue);
 
     }
-    
   }
   
 }
+
 
 void try_unlocking(std::vector<Task*> &tasks_in_pool,
 		   std::vector<Task*> &ready_queue){
@@ -354,7 +343,7 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
    * If they have, add it to ready queue and remove
    * from tasks_in_pool
    */
-  std::cout<<"\n\nTrying to unlock tasks in pool...\n";
+  std::cout<<"\nTrying to unlock tasks in pool...\n";
 
   vector<Task*> to_remove;
   
@@ -424,6 +413,7 @@ void  show_free_units(std::vector<ExecutionUnit*> &cpus){
   std::cout<<"\n";
 }
 
+
 void run_scheduler(std::vector<Task*> &tasks_in_pool,
 		   std::vector<Task*> &ready_queue,
 		   std::vector<ExecutionUnit*> &cpus,
@@ -456,7 +446,6 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
 
     }
 
-    std::cout<<"Here......"<<"\n";
     run(running_queue);
     sleep(1);
     

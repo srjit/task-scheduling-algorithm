@@ -117,7 +117,6 @@ void initial_scheduling(int **graph,
 
   /**
    *  Core of the initial component of  the MCC Scheduler
-   *
    */
   std::vector<int> exit_task_ids;
   exit_task_ids.push_back(9);
@@ -132,19 +131,10 @@ void initial_scheduling(int **graph,
   		     core_count,
   		     c_task_attributes);
 
-
   task_prioritizing(tasks);
-
   
   execution_unit_selection(tasks,
   			   core_table,
   			   core_count);
-
-  
-  // std::cout<<"\n Current order of execution with priorities  \n";
-  // for(int i=0; i<10; i++){
-  //   std::cout<<"\n"<<tasks[i].get_id()<<"\t"<<tasks[i].get_priority();
-  // }
-  // std::cout<<"\n";
   
 }
