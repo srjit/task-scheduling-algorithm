@@ -251,7 +251,7 @@ void assign(std::vector<Task*> &ready_queue,
    * If not break out, we cannot assign any more tasks
    * anyway.
    */
-  vector<int> to_remove;
+  std::vector<Task*> to_remove;
   
   for(int i=0; i<ready_queue.size(); i++){
 
@@ -272,7 +272,7 @@ void assign(std::vector<Task*> &ready_queue,
        * Remove the task from ready queue and assign it to running queue
        */
       running_queue.push_back(_task);
-      to_remove.push_back(i);
+      to_remove.push_back(_task);
     }else{
       std::cout<<"No free execution units available. Scheduler will wait until the next tick!\n";
       break;
@@ -280,12 +280,13 @@ void assign(std::vector<Task*> &ready_queue,
     
   }
 
-  //  std::cout<<"%%%%%%%%%%%"<<to_remove.size();
   for(int k=0; k<to_remove.size(); k++){
-    int index = to_remove[k];
-    ready_queue.erase(ready_queue.begin() + index);
+    Task* _tmp = to_remove[k];
+    ready_queue.erase(std::remove(ready_queue.begin(),
+				  ready_queue.end(), _tmp),
+		      ready_queue.end());
+    
   }
-  
 }
 
 
@@ -355,7 +356,7 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
    */
   std::cout<<"\n\nTrying to unlock tasks in pool...\n";
 
-  vector<int> to_remove;
+  vector<Task*> to_remove;
   
   for(int i=0; i<tasks_in_pool.size(); i++){
 
@@ -375,7 +376,7 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
       std::cout<<"Adding "<<task->get_id()<< " to the ready queue\n";
       task->set_is_unlocked(true);
       ready_queue.push_back(task);
-      to_remove.push_back(i);
+      to_remove.push_back(task);
     } 
   }
 
@@ -385,8 +386,11 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
    * 
    */
   for(int i=0; i<to_remove.size(); i++){
-    int index = to_remove[i];
-    tasks_in_pool.erase(tasks_in_pool.begin() + index);
+    Task* tmp = to_remove[i];
+    tasks_in_pool.erase(std::remove(tasks_in_pool.begin(),
+				    tasks_in_pool.end(), tmp),
+			tasks_in_pool.end());
+    
   }
   
 }
@@ -452,6 +456,7 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
 
     }
 
+    std::cout<<"Here......"<<"\n";
     run(running_queue);
     sleep(1);
     
