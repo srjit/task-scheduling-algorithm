@@ -26,14 +26,14 @@ std::vector<ExecutionUnit*> get_execution_units(int core_count){
    * Order the processor in descending order of power
    * - this might be important
    */
-   ExecutionUnit* eu1 = new ExecutionUnit(1, 'l');
-   cpus.push_back(eu1);
+  ExecutionUnit* eu1 = new ExecutionUnit(1, 'l');
+  cpus.push_back(eu1);
 
-   ExecutionUnit* eu2 = new ExecutionUnit(2, 'l');
-   cpus.push_back(eu2);
+  ExecutionUnit* eu2 = new ExecutionUnit(2, 'l');
+  cpus.push_back(eu2);
 
-   ExecutionUnit* eu3 = new ExecutionUnit(3, 'l');
-   cpus.push_back(eu3);
+  ExecutionUnit* eu3 = new ExecutionUnit(3, 'l');
+  cpus.push_back(eu3);
    
 
   /**
@@ -69,8 +69,8 @@ void sort_by_priority(std::vector<Task*> &tasks)
 
 
 std::vector<Task*> construct_tasks(int **graph,
-				  int job_count,
-				  std::vector<int> exit_tasks)
+				   int job_count,
+				   std::vector<int> exit_tasks)
 {
 
   /**
@@ -128,7 +128,6 @@ void calculate_and_set_priority(Task *task){
    *  Recursive implementation to compute the 
    *  initial priority of tasks
    */
-
   if(task->get_is_exit()){
     task->set_priority(task->get_cost());
   } else{
@@ -190,7 +189,8 @@ void start(Task *task,
 
 
 ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
-			    Task* task){
+			    Task* task,
+			    std::vector<Task*> &ready_queue){
 
   if (task->get_type() == 'c'){
 
@@ -204,27 +204,31 @@ ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
     
   } else {
 
+    ExecutionUnit* free_unit = NULL;    
 
-  
-    ExecutionUnit* free_unit = NULL;
 
-    /*
-     *  Priority of CPUS
-     *  If most powerful local core (CPU 3) is available return it
-     *  Else try cloud cpu (CPU 4)
-     *  Else try local cpu (CPU 2)
-     *  Else try local cpu (CPU 1)
-     *
-     */
-    if(cpus[cpus.size()-2]->get_available()){
+    if(ready_queue.size() == 1 && cpus[cpus.size()-2]->get_available()){
       free_unit = cpus[cpus.size()-2];
-    } else if (cpus[cpus.size()-1]->get_available()){
-      free_unit = cpus[cpus.size()-1];
-    } else if (cpus[cpus.size()-3]->get_available()){
-      free_unit = cpus[cpus.size()-3];
-    } else if (cpus[cpus.size()-4]->get_available()){
-      free_unit = cpus[cpus.size()-4];
-    } 
+    } else {
+  
+      /*
+       *  Priority of CPUS
+       *  If most powerful local core (CPU 3) is available return it
+       *  Else try cloud cpu (CPU 4)
+       *  Else try local cpu (CPU 2)
+       *  Else try local cpu (CPU 1)
+       *
+       */
+      if(cpus[cpus.size()-1]->get_available()){
+	free_unit = cpus[cpus.size()-1];
+      } else if (cpus[cpus.size()-2]->get_available()){
+	free_unit = cpus[cpus.size()-2];
+      } else if (cpus[cpus.size()-3]->get_available()){
+	free_unit = cpus[cpus.size()-3];
+      } else if (cpus[cpus.size()-4]->get_available()){
+	free_unit = cpus[cpus.size()-4];
+      }
+    }
     
     return free_unit;
   }
@@ -247,11 +251,15 @@ void assign(std::vector<Task*> &ready_queue,
    * If not break out, we cannot assign any more tasks
    * anyway.
    */
+  vector<int> to_remove;
+  
   for(int i=0; i<ready_queue.size(); i++){
 
     Task* _task = ready_queue[i];
 
-    ExecutionUnit* cpu = get_free_cpu(cpus, _task);
+    ExecutionUnit* cpu = get_free_cpu(cpus,
+				      _task,
+				      ready_queue);
     std::cout<<"\nAssigning "<<_task->get_id()<<" CPU"<<cpu->get_id();
 
     if(cpu != NULL){
@@ -262,14 +270,18 @@ void assign(std::vector<Task*> &ready_queue,
        * Remove the task from ready queue and assign it to running queue
        */
       running_queue.push_back(_task);
-      ready_queue.erase(std::remove(ready_queue.begin(),
-      				  ready_queue.end(), _task),
-      		      ready_queue.end());
+      to_remove.push_back(i);
     }else{
       std::cout<<"No free execution units available. Scheduler will wait until the next tick!\n";
       break;
     }
     
+  }
+
+
+  for(int k=0; k<to_remove.size(); k++){
+    int index = to_remove[k];
+    ready_queue.erase(ready_queue.begin() + index);
   }
   
 }
@@ -340,13 +352,12 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
    * from tasks_in_pool
    */
   std::cout<<"\n\nTrying to unlock tasks in pool...\n";
+
+  vector<int> to_remove;
   
   for(int i=0; i<tasks_in_pool.size(); i++){
 
     Task* task = tasks_in_pool[i];
-    std::cout<<"Checking if task "<<task->get_id()<<" can be unlocked\n";
-
-    
     std::vector<Task*> parents =  task->get_parents();
 
     bool can_start = true;
@@ -359,13 +370,21 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
     }
 
     if(can_start){
-      std::cout<<"Adding "<<task->get_id()<< " to the ready queue\n\n";
+      std::cout<<"Adding "<<task->get_id()<< " to the ready queue\n";
       task->set_is_unlocked(true);
       ready_queue.push_back(task);
-      tasks_in_pool.erase(std::remove(tasks_in_pool.begin(),
-      				      tasks_in_pool.end(), task),
-      			  tasks_in_pool.end());
-    }
+      to_remove.push_back(i);
+    } 
+  }
+
+  /**
+   * Remove elements which have been added to ready queue
+   * from the tasks in pool
+   * 
+   */
+  for(int i=0; i<to_remove.size(); i++){
+    int index = to_remove[i];
+    tasks_in_pool.erase(tasks_in_pool.begin() + index);
   }
   
 }
@@ -412,10 +431,10 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
    */
   int i=0;
   do{
-    std::cout<<"\n--------------   Beginning Tick "<<++i<< "   ---------------";
+    std::cout<<"\n--------------  Tick: "<<++i<< "   ---------------";
     /**
      * If any job has finished, free the CPU
-     * on which it has been running
+     * onto_remove[i] which it has been running
      */
     remove_finished_tasks(running_queue);
     show_free_units(cpus);
@@ -423,7 +442,7 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
     
     if (ready_queue.size() > 0){
 
-    // // sort the ready queue by priority
+      // sort the ready queue by priority
       assign(ready_queue,
     	     running_queue,
     	     cpus,

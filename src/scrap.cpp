@@ -51,3 +51,19 @@ Test for children
  
 
 
+
+
+  std::cout<<"++++++++++++++++++";
+  for(int i=0; i<tasks_in_pool.size(); i++){
+    std::cout<<tasks_in_pool[i]->get_id();
+  }
+  std::cout<<"++++++++++++++++++";
+
+
+      // tasks_in_pool.erase(std::remove(tasks_in_pool.begin(),
+      // 				      tasks_in_pool.end(), task),
+      // 			  tasks_in_pool.end());
+
+      ready_queue.erase(std::remove(ready_queue.begin(),
+				    ready_queue.end(), _task),
+			ready_queue.end());
