@@ -155,7 +155,11 @@ public:
   }
 
   float get_progress_percentage(){
-    return (this->progress)/(this->ticks_to_finish)*100;
+    float progress_percentage = (this->progress)/(this->ticks_to_finish)*100;
+    if (progress_percentage > 100){
+      progress_percentage = 100;
+    }
+    return progress_percentage;
   }
   
 
