@@ -32,7 +32,8 @@ class Task{
 
   int ready1;
   int ready2;
-  
+
+  float power_consumed = 0.0;
   
   /**
    * Increment this unit by 1 tick
@@ -152,6 +153,13 @@ public:
 
   void increment_progress(){
     this->progress += 1.0;
+
+    if(this->type == 'l'){
+      std::cout<<"-------";
+      int power_per_tick = this->cpu->get_power();
+      this->power_consumed += power_per_tick;
+    }
+      
   }
 
   void set_progress(float progress){
@@ -174,6 +182,10 @@ public:
   void set_cpu(ExecutionUnit* cpu){
     this->cpu = cpu;
     this->execution_unit_id = cpu->get_id();
+
+    if(this->type == 'c'){
+      this->power_consumed += cpu->get_power();
+    }
   }
 
   ExecutionUnit* get_cpu(){
@@ -198,6 +210,14 @@ public:
 
   float get_ready_time(){
     return this->ready_time;
+  }
+
+  void set_power_consumed(float power_consumed){
+    this->power_consumed = power_consumed;
+  }
+
+  float get_power_consumed(){
+    return this->power_consumed;
   }
 
   /**

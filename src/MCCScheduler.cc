@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <queue>
 
-//#include "Utils.cc"
 #include "SchedulerUtils.cc"
 
 using namespace std;
@@ -45,6 +44,7 @@ void primary_assignment(std::vector<Task*> &tasks,
     float cost = 0;
 
     if (task_type[i] == 'l'){
+      tasks[i]->set_type('l');
       int total_local_cost = accumulate(begin(core_table[i]),
       					end(core_table[i]),
       					0,
@@ -52,6 +52,7 @@ void primary_assignment(std::vector<Task*> &tasks,
 
       cost = total_local_cost / float(core_count);
     } else if (task_type[i] == 'c'){
+      tasks[i]->set_type('c');      
       cost = task_mintime_cloud[i];
     }
 
@@ -109,42 +110,78 @@ void execution_unit_selection(std::vector<Task*> &tasks,
 }
 
 
-void optimize(std::vector<Task*> &tasks,
-	      std::array<std::array<int,3>, 10> core_table,
-	      int core_count)	      
+std::vector<std::vector<Task*>> get_primary_allocation_queue(std::vector<Task*> &tasks,
+				  std::array<std::array<int,3>, 10> core_table,
+				  int core_count)	      
 {
 
   std::vector<Task*> tasks_in_pool;
+  std::vector<std::vector<Task*>> primary_allocation;
 
+  for(int i=1; i<=core_count+1; i++){
+    
+    std::vector<Task*> tmp;
+    for(int j=0; j<tasks.size(); j++){
+      if(tasks[j]->get_execution_unit_id() == i){
+	tmp.push_back(tasks[j]);
+      }
+      
+    }
+    primary_allocation.push_back(tmp);
+  }
+
+  return primary_allocation;
   /**
    * Resetting tasks
    */
-  for(int k=0; k< tasks.size();k++){
-    tasks[k]->set_is_unlocked(false);
-    tasks[k]->set_is_running(false);
-    tasks[k]->set_is_finished(false);
-    tasks[k]->set_progress(0.0);
-  }
 
-  // adding every task from 1 to 9 into pool -
-  // task with index 0 is ready
-  for(int k=1; k<tasks.size();k++){
-    tasks_in_pool.push_back(tasks[k]);    
-  }
+  // for(int k=0; k< tasks.size();k++){
+  //   tasks[k]->set_is_unlocked(false);
+  //   tasks[k]->set_is_running(false);
+  //   tasks[k]->set_is_finished(false);
+  //   tasks[k]->set_progress(0.0);
+  // }
 
-  std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
+  // // adding every task from 1 to 9 into pool -
+  // // task with index 0 is ready
+  // for(int k=1; k<tasks.size();k++){
+  //   tasks_in_pool.push_back(tasks[k]);    
+  // }
 
-  std::vector<Task*> ready_queue;  
-  tasks[0]->set_is_unlocked(true);
-  ready_queue.push_back(tasks[0]);
+  // std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
 
-  run_scheduler(tasks_in_pool,
-  		ready_queue,
-  		cpus,
-  		core_table,
-		false);
+  // std::vector<Task*> ready_queue;  
+  // tasks[0]->set_is_unlocked(true);
+  // ready_queue.push_back(tasks[0]);
+
+  // run_scheduler(tasks_in_pool,
+  // 		ready_queue,
+  // 		cpus,
+  // 		core_table,
+  // 		false);
   
 }
+
+float total_power_consumed(std::vector<Task*> &tasks){
+
+  float power_consumed = 0;
+  for(int i=0; i<tasks.size(); i++){
+    power_consumed += tasks[i]->get_power_consumed();
+    std::cout<<tasks[i]->get_power_consumed()<<"\t";
+  }
+  std::cout<<"\n";
+  return power_consumed;
+  
+}
+
+void optimize_schedule(std::vector<Task*> &tasks,
+		       std::vector<std::vector<Task*>> primary_allocation,
+		       std::array<std::array<int,3>, 10> core_table){
+  
+  
+}
+
+
 
 
 void execute(int **graph,
@@ -182,6 +219,8 @@ void execute(int **graph,
   			   core_table,
   			   core_count);
 
+  float power_consumed = total_power_consumed(tasks);
+  std::cout<<"Used: "<< power_consumed <<" units of power\n";
   /**
    *************************************************     
    *        Part II: Task Migration                *
@@ -189,10 +228,14 @@ void execute(int **graph,
    *************************************************
    */
 
-    compute_prerequisites_for_optimization(tasks);
-    optimize(tasks,
-	     core_table,
-	     core_count);
-	     
+  // compute_prerequisites_for_optimization(tasks);
+  // std::vector<std::vector<Task*>> primary_allocation =
+  //   get_primary_allocation_queue(tasks,
+  // 				 core_table,
+  // 				 core_count);
+
+  // optimize_schedule(tasks,
+  // 		    primary_allocation,
+  // 		    core_table);
     
 }

@@ -155,6 +155,32 @@ void calculate_and_set_priority(Task *task){
 }
 
 
+ExecutionUnit* get_free_cpu_random(std::vector<ExecutionUnit*> &cpus){
+
+  /**
+   *  Priority of CPUS
+   *  If most powerful local core (CPU 3) is available return it
+   *  Else try cloud cpu (CPU 4)
+   *  Else try local cpu (CPU 2)
+   *  Else try local cpu (CPU 1)
+   *
+   */
+  ExecutionUnit* free_unit = NULL;
+  
+  if(cpus[cpus.size()-1]->get_available()){
+    free_unit = cpus[cpus.size()-1];
+  } else if (cpus[cpus.size()-2]->get_available()){
+    free_unit = cpus[cpus.size()-2];
+  } else if (cpus[cpus.size()-3]->get_available()){
+    free_unit = cpus[cpus.size()-3];
+  } else if (cpus[cpus.size()-4]->get_available()){
+    free_unit = cpus[cpus.size()-4];
+  }
+
+  return free_unit;
+  
+}
+
 ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
 			    Task* task,
 			    std::vector<Task*> &ready_queue,
@@ -172,35 +198,12 @@ ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
 
     ExecutionUnit* free_unit = NULL;
 
-    if (optimize){
-      
-    } else {
-
       if(ready_queue.size() == 1 && cpus[cpus.size()-2]->get_available()){
 	free_unit = cpus[cpus.size()-2];
       } else {
-  
-	/*
-	 *  Priority of CPUS
-	 *  If most powerful local core (CPU 3) is available return it
-	 *  Else try cloud cpu (CPU 4)
-	 *  Else try local cpu (CPU 2)
-	 *  Else try local cpu (CPU 1)
-	 *
-	 */
-	if(cpus[cpus.size()-1]->get_available()){
-	  free_unit = cpus[cpus.size()-1];
-	} else if (cpus[cpus.size()-2]->get_available()){
-	  free_unit = cpus[cpus.size()-2];
-	} else if (cpus[cpus.size()-3]->get_available()){
-	  free_unit = cpus[cpus.size()-3];
-	} else if (cpus[cpus.size()-4]->get_available()){
-	  free_unit = cpus[cpus.size()-4];
-	}
+  	free_unit = get_free_cpu_random(cpus);
       }
 
-    }
-    
     return free_unit;
   }
   return NULL;
@@ -258,6 +261,7 @@ void calculate_ready_times(std::vector<Task*> &tasks){
 
 
 void compute_prerequisites_for_optimization(std::vector<Task*> &tasks){
+
   calculate_ready_times(tasks);
   
 }
