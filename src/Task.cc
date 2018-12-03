@@ -29,6 +29,9 @@ class Task{
   int execution_unit_id;
   float finish_time;
   float ready_time = 0;
+
+  int ready1;
+  int ready2;
   
   
   /**

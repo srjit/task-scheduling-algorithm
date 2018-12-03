@@ -3,6 +3,7 @@ class ExecutionUnit{
 
   int id;
   char type;
+  float power;
   bool available = true;
 
 public:
@@ -18,6 +19,14 @@ public:
 
   char get_type(){
     return this->type;
+  }
+
+  void set_power(float power){
+    this->power = power;
+  }
+
+  float get_power(){
+    return this->power;
   }
 
   void set_available(bool available){

@@ -52,7 +52,6 @@ std::array<std::array<int,3>, 10> local_execution_core_cycles()
   return core_table;
 }
 
-
 int main()
 {
 
@@ -72,10 +71,10 @@ int main()
   c_task.t_c_exec = 1;
   c_task.t_recv = 1;
 
-  initial_scheduling(graph,
-		     cores_table,
-		     job_count,
-		     core_count,
-		     c_task);
+  execute(graph,
+	  cores_table,
+	  job_count,
+	  core_count,
+	  c_task);
   
 }

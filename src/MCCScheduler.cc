@@ -109,11 +109,50 @@ void execution_unit_selection(std::vector<Task*> &tasks,
 }
 
 
-void initial_scheduling(int **graph,
-			std::array<std::array<int,3>, 10> core_table,
-			int job_count,
-			int core_count,
-	CloudTask c_task_attributes)
+void optimize(std::vector<Task*> &tasks,
+	      std::array<std::array<int,3>, 10> core_table,
+	      int core_count)	      
+{
+
+  std::vector<Task*> tasks_in_pool;
+
+  /**
+   * Resetting tasks
+   */
+  for(int k=0; k< tasks.size();k++){
+    tasks[k]->set_is_unlocked(false);
+    tasks[k]->set_is_running(false);
+    tasks[k]->set_is_finished(false);
+    tasks[k]->set_progress(0.0);
+  }
+
+  // adding every task from 1 to 9 into pool -
+  // task with index 0 is ready
+  for(int k=1; k<tasks.size();k++){
+    tasks_in_pool.push_back(tasks[k]);    
+  }
+
+  std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
+
+  std::vector<Task*> ready_queue;  
+  tasks[0]->set_is_unlocked(true);
+  ready_queue.push_back(tasks[0]);
+
+  run_scheduler(tasks_in_pool,
+  		ready_queue,
+  		cpus,
+  		core_table,
+		true);
+  
+  
+}
+
+
+void execute(int **graph,
+	     std::array<std::array<int,3>, 10> core_table,
+	     int job_count,
+	     int core_count,
+	     CloudTask c_task_attributes)
 {
 
   /**
@@ -139,13 +178,10 @@ void initial_scheduling(int **graph,
   		     job_count,
   		     core_count,
   		     c_task_attributes);
-
   task_prioritizing(tasks);
-  
   execution_unit_selection(tasks,
   			   core_table,
   			   core_count);
-
 
   /**
    *************************************************     
@@ -154,7 +190,10 @@ void initial_scheduling(int **graph,
    *************************************************
    */
 
-
     compute_prerequisites_for_optimization(tasks);
-  
+    optimize(tasks,
+	     core_table,
+	     core_count);
+	     
+    
 }
