@@ -157,7 +157,8 @@ void calculate_and_set_priority(Task *task){
 
 ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
 			    Task* task,
-			    std::vector<Task*> &ready_queue){
+			    std::vector<Task*> &ready_queue,
+			    bool optimize=false){
 
   if (task->get_type() == 'c'){
 
@@ -169,30 +170,35 @@ ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
     
   } else {
 
-    ExecutionUnit* free_unit = NULL;    
+    ExecutionUnit* free_unit = NULL;
 
-
-    if(ready_queue.size() == 1 && cpus[cpus.size()-2]->get_available()){
-      free_unit = cpus[cpus.size()-2];
+    if (optimize){
+      
     } else {
-  
-      /*
-       *  Priority of CPUS
-       *  If most powerful local core (CPU 3) is available return it
-       *  Else try cloud cpu (CPU 4)
-       *  Else try local cpu (CPU 2)
-       *  Else try local cpu (CPU 1)
-       *
-       */
-      if(cpus[cpus.size()-1]->get_available()){
-	free_unit = cpus[cpus.size()-1];
-      } else if (cpus[cpus.size()-2]->get_available()){
+
+      if(ready_queue.size() == 1 && cpus[cpus.size()-2]->get_available()){
 	free_unit = cpus[cpus.size()-2];
-      } else if (cpus[cpus.size()-3]->get_available()){
-	free_unit = cpus[cpus.size()-3];
-      } else if (cpus[cpus.size()-4]->get_available()){
-	free_unit = cpus[cpus.size()-4];
+      } else {
+  
+	/*
+	 *  Priority of CPUS
+	 *  If most powerful local core (CPU 3) is available return it
+	 *  Else try cloud cpu (CPU 4)
+	 *  Else try local cpu (CPU 2)
+	 *  Else try local cpu (CPU 1)
+	 *
+	 */
+	if(cpus[cpus.size()-1]->get_available()){
+	  free_unit = cpus[cpus.size()-1];
+	} else if (cpus[cpus.size()-2]->get_available()){
+	  free_unit = cpus[cpus.size()-2];
+	} else if (cpus[cpus.size()-3]->get_available()){
+	  free_unit = cpus[cpus.size()-3];
+	} else if (cpus[cpus.size()-4]->get_available()){
+	  free_unit = cpus[cpus.size()-4];
+	}
       }
+
     }
     
     return free_unit;

@@ -135,7 +135,7 @@ void assign(std::vector<Task*> &ready_queue,
 	    std::vector<Task*> &running_queue,	    
 	    std::vector<ExecutionUnit*> &cpus,
 	    std::array<std::array<int,3>, 10> core_table,
-	    int optimize=true){
+	    int optimize=false){
 
   /**
    * For each task in the ready queue, look
@@ -154,7 +154,8 @@ void assign(std::vector<Task*> &ready_queue,
     Task* _task = ready_queue[i];
     ExecutionUnit* cpu = get_free_cpu(cpus,
 				      _task,
-				      ready_queue);
+				      ready_queue,
+				      optimize);
 
     if(cpu != NULL){
 
@@ -230,7 +231,7 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
     	     running_queue,
     	     cpus,
     	     core_table,
-	     true);
+	     optimize);
 
     }
 

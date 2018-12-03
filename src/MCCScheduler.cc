@@ -142,8 +142,7 @@ void optimize(std::vector<Task*> &tasks,
   		ready_queue,
   		cpus,
   		core_table,
-		true);
-  
+		false);
   
 }
 
