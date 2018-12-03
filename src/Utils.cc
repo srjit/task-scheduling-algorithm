@@ -25,23 +25,19 @@ std::vector<ExecutionUnit*> get_execution_units(int core_count){
    * Order the processor in descending order of power
    * - this might be important
    */
-  ExecutionUnit* eu1 = new ExecutionUnit(1, 'l');
-  eu1->set_power(1.0);
+  ExecutionUnit* eu1 = new ExecutionUnit(1, 'l', 1.0);
   cpus.push_back(eu1);
 
-  ExecutionUnit* eu2 = new ExecutionUnit(2, 'l');
-  eu2->set_power(2.0);  
+  ExecutionUnit* eu2 = new ExecutionUnit(2, 'l', 2.0);
   cpus.push_back(eu2);
 
-  ExecutionUnit* eu3 = new ExecutionUnit(3, 'l');
-  eu1->set_power(3.0);  
+  ExecutionUnit* eu3 = new ExecutionUnit(3, 'l', 4.0);
   cpus.push_back(eu3);
    
   /**
    * 1 Execution Unit for the cloud
    */
-  ExecutionUnit* c = new ExecutionUnit(4, 'c');
-  eu1->set_power(0.5);  
+  ExecutionUnit* c = new ExecutionUnit(4, 'c', 0.0);
   cpus.push_back(c);
 
   return cpus;

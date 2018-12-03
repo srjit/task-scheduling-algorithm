@@ -208,7 +208,6 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
 		   bool optimize=false){
 
   std::vector<Task*> running_queue;
-
   /**
    *  Every time it goes into this loop,
    *  it is one tick (shown in Fig. 3)

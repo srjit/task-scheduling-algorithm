@@ -84,6 +84,8 @@ void execution_unit_selection(std::vector<Task*> &tasks,
   sort_by_priority(tasks);
 
   std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
+
+  
   std::cout<<"\nThere are "<< cpus.size() <<" execution units available\n";
 
   

@@ -155,7 +155,6 @@ public:
     this->progress += 1.0;
 
     if(this->type == 'l'){
-      std::cout<<"-------";
       int power_per_tick = this->cpu->get_power();
       this->power_consumed += power_per_tick;
     }
@@ -183,8 +182,8 @@ public:
     this->cpu = cpu;
     this->execution_unit_id = cpu->get_id();
 
-    if(this->type == 'c'){
-      this->power_consumed += cpu->get_power();
+    if(this->cpu->get_type() == 'c'){
+      this->power_consumed += 0.5;
     }
   }
 

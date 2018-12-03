@@ -3,7 +3,7 @@ class ExecutionUnit{
 
   int id;
   char type;
-  float power;
+  float power = 0.0;
   bool available = true;
 
 public:
@@ -13,6 +13,12 @@ public:
     this->type = type;
   }
 
+  ExecutionUnit(int id, char type, float power){
+    this->id = id;
+    this->type = type;
+    this->power = power;
+  }
+  
   int get_id(){
     return this->id;
   }
