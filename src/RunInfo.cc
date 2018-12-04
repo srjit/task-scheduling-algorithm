@@ -4,7 +4,7 @@ class RunInfo{
 
   std::vector<int> assignment;
   float power_consumption;
-  int time_taken;
+  float time_taken;
 
 public:
 
@@ -20,7 +20,7 @@ public:
     return this->power_consumption;
   }
 
-  void set_time_taken(int time_taken){
+  void set_time_taken(float time_taken){
     this->time_taken = time_taken;
   }
 

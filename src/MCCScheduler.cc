@@ -132,15 +132,26 @@ std::vector<int> get_primary_allocation_queue(std::vector<Task*> &tasks,
   
 }
 
-float total_power_consumed(std::vector<Task*> &tasks){
+float total_power_consumed(std::vector<Task*> &tasks)
+{
 
   float power_consumed = 0;
   for(int i=0; i<tasks.size(); i++){
     power_consumed += tasks[i]->get_power_consumed();
-    std::cout<<tasks[i]->get_power_consumed()<<"\t";
   }
-  std::cout<<"\n";
   return power_consumed;
+  
+}
+
+
+float total_time_taken(std::vector<Task*> &tasks)
+{
+
+  float total_time = 0;
+  for(int i=0; i<tasks.size(); i++){
+    total_time += tasks[i]->get_finish_time();
+  }
+  return total_time;
   
 }
 
@@ -166,7 +177,7 @@ void optimize_schedule(std::vector<Task*> &tasks,
 		       int core_count)
 {
 
-  vector<RunInfo> run_info;
+  vector<RunInfo> run_informations;
 
   /**
    * Outer loop
@@ -179,12 +190,14 @@ void optimize_schedule(std::vector<Task*> &tasks,
     vector<int> schedule;
     for(int j=1; j<=core_count+1; j++){
 
-           if(primary_allocation[i] != j){
+
+      if(primary_allocation[i] != j){
 
 	reset_tasks(tasks);
 	vector<int> new_allocation(primary_allocation);
 
 	new_allocation.at(i) = j;
+	RunInfo run_information(new_allocation);
 
 	for(int k=0; k<new_allocation.size(); k++){
 	  std::cout<<new_allocation[k]<<"\t";
@@ -207,9 +220,19 @@ void optimize_schedule(std::vector<Task*> &tasks,
 		      ready_queue,
 		      cpus,
 		      core_table,
-		      new_allocation);	
+		      new_allocation);
+
+	float power_consumed = total_power_consumed(tasks);
+	run_information.set_power_consumption(power_consumed);
+
+	float time_taken = total_time_taken(tasks);
+	run_information.set_time_taken(time_taken);
 	
-	}
+
+	run_informations.push_back(run_information);
+      
+      }
+
     }
   }
   
