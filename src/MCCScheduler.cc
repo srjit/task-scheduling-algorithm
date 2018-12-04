@@ -4,6 +4,7 @@
 #include <queue>
 
 #include "SchedulerUtils.cc"
+#include "RunInfo.cc"
 
 using namespace std;
 
@@ -112,7 +113,7 @@ void execution_unit_selection(std::vector<Task*> &tasks,
 }
 
 
-std::vector<std::vector<Task*>> get_primary_allocation_queue(std::vector<Task*> &tasks,
+std::vector<int> get_primary_allocation_queue(std::vector<Task*> &tasks,
 				  std::array<std::array<int,3>, 10> core_table,
 				  int core_count)	      
 {
@@ -120,47 +121,14 @@ std::vector<std::vector<Task*>> get_primary_allocation_queue(std::vector<Task*> 
   std::vector<Task*> tasks_in_pool;
   std::vector<std::vector<Task*>> primary_allocation;
 
-  for(int i=1; i<=core_count+1; i++){
-    
-    std::vector<Task*> tmp;
-    for(int j=0; j<tasks.size(); j++){
-      if(tasks[j]->get_execution_unit_id() == i){
-	tmp.push_back(tasks[j]);
-      }
-      
-    }
-    primary_allocation.push_back(tmp);
+  std::vector<int> _primary_allocation;
+
+  for(int j=0; j<tasks.size(); j++){
+    int tmp = tasks[j]->get_execution_unit_id();
+    _primary_allocation.push_back(tmp);
   }
 
-  return primary_allocation;
-  /**
-   * Resetting tasks
-   */
-
-  // for(int k=0; k< tasks.size();k++){
-  //   tasks[k]->set_is_unlocked(false);
-  //   tasks[k]->set_is_running(false);
-  //   tasks[k]->set_is_finished(false);
-  //   tasks[k]->set_progress(0.0);
-  // }
-
-  // // adding every task from 1 to 9 into pool -
-  // // task with index 0 is ready
-  // for(int k=1; k<tasks.size();k++){
-  //   tasks_in_pool.push_back(tasks[k]);    
-  // }
-
-  // std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
-
-  // std::vector<Task*> ready_queue;  
-  // tasks[0]->set_is_unlocked(true);
-  // ready_queue.push_back(tasks[0]);
-
-  // run_scheduler(tasks_in_pool,
-  // 		ready_queue,
-  // 		cpus,
-  // 		core_table,
-  // 		false);
+  return _primary_allocation;
   
 }
 
@@ -176,14 +144,72 @@ float total_power_consumed(std::vector<Task*> &tasks){
   
 }
 
-void optimize_schedule(std::vector<Task*> &tasks,
-		       std::vector<std::vector<Task*>> primary_allocation,
-		       std::array<std::array<int,3>, 10> core_table){
-  
+
+void reset_tasks(std::vector<Task*> &tasks){
+
+  /**
+   * Resetting tasks
+   */
+
+  for(int k=0; k< tasks.size();k++){
+    tasks[k]->set_is_unlocked(false);
+    tasks[k]->set_is_running(false);
+    tasks[k]->set_is_finished(false);
+    tasks[k]->set_progress(0.0);
+  }
   
 }
 
+void optimize_schedule(std::vector<Task*> &tasks,
+		       std::vector<int> primary_allocation,
+		       std::array<std::array<int,3>, 10> core_table,
+		       int core_count)
+{
 
+  vector<RunInfo> run_info;
+
+  /**
+   * Outer loop
+   */
+  for(int i=0; i<tasks.size(); i++){
+
+    Task* target_task_for_migration = tasks[i];
+    int index_of_target = target_task_for_migration->get_id() - 1;
+    
+    vector<int> schedule;
+    for(int j=0; j<core_count; j++){
+
+
+      if(primary_allocation[index_of_target] != j){
+
+	reset_tasks(tasks);
+	vector<int> new_allocation(primary_allocation);
+
+	new_allocation.at(index_of_target) = j;
+
+	// adding every task from 1 to 9 into pool -
+	// task with index 0 is ready
+	std::vector<Task*> tasks_in_pool;
+	for(int k=1; k<tasks.size();k++){
+	  tasks_in_pool.push_back(tasks[k]);    
+	}
+	
+	std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
+	std::vector<Task*> ready_queue;  
+	tasks[0]->set_is_unlocked(true);
+	ready_queue.push_back(tasks[0]);
+	
+	run_scheduler(tasks_in_pool,
+		      ready_queue,
+		      cpus,
+		      core_table,
+		      false);	
+	
+      }
+    }
+  }
+  
+}
 
 
 void execute(int **graph,
@@ -222,7 +248,8 @@ void execute(int **graph,
   			   core_count);
 
   float power_consumed = total_power_consumed(tasks);
-  std::cout<<"Used: "<< power_consumed <<" units of power\n";
+
+  
   /**
    *************************************************     
    *        Part II: Task Migration                *
@@ -230,14 +257,21 @@ void execute(int **graph,
    *************************************************
    */
 
-  // compute_prerequisites_for_optimization(tasks);
-  // std::vector<std::vector<Task*>> primary_allocation =
-  //   get_primary_allocation_queue(tasks,
-  // 				 core_table,
-  // 				 core_count);
+  compute_prerequisites_for_optimization(tasks);
+  std::vector<int> primary_allocation =
+    get_primary_allocation_queue(tasks,
+  				 core_table,
+  				 core_count);
 
-  // optimize_schedule(tasks,
-  // 		    primary_allocation,
-  // 		    core_table);
-    
+  optimize_schedule(tasks,
+  		    primary_allocation,
+  		    core_table,
+  		    core_count);
+
+  std::cout<<"\n";
+  
+  for(int i=0;i<10;i++){
+    std::cout<<"\t"<<primary_allocation[i];
+  }
+  std::cout<<"\n";
 }

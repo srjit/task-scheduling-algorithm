@@ -5,6 +5,16 @@
 
 using namespace std;
 
+
+void get_primary_execution_unit(Task* task,
+			    std::vector<std::vector<Task*>> primary_allocation)
+{
+
+  
+  
+  
+}
+
 void stop_execution(Task *task,
 		    std::vector<Task*> &running_queue,
 		    int finish_tick){
