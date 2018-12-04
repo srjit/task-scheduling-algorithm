@@ -173,22 +173,26 @@ void optimize_schedule(std::vector<Task*> &tasks,
    */
   for(int i=0; i<tasks.size(); i++){
 
-    Task* target_task_for_migration = tasks[i];
-    int index_of_target = target_task_for_migration->get_id() - 1;
-    
+    // Task* target_task_for_migration = tasks[i];
+    // int index_of_target = target_task_for_migration->get_id() - 1;
+
     vector<int> schedule;
-    for(int j=0; j<core_count; j++){
+    for(int j=1; j<=core_count+1; j++){
 
-
-      if(primary_allocation[index_of_target] != j){
+           if(primary_allocation[i] != j){
 
 	reset_tasks(tasks);
 	vector<int> new_allocation(primary_allocation);
 
-	new_allocation.at(index_of_target) = j;
+	new_allocation.at(i) = j;
+
+	for(int k=0; k<new_allocation.size(); k++){
+	  std::cout<<new_allocation[k]<<"\t";
+	}
 
 	// adding every task from 1 to 9 into pool -
 	// task with index 0 is ready
+	
 	std::vector<Task*> tasks_in_pool;
 	for(int k=1; k<tasks.size();k++){
 	  tasks_in_pool.push_back(tasks[k]);    
@@ -203,9 +207,9 @@ void optimize_schedule(std::vector<Task*> &tasks,
 		      ready_queue,
 		      cpus,
 		      core_table,
-		      false);	
+		      new_allocation);	
 	
-      }
+	}
     }
   }
   
@@ -268,10 +272,10 @@ void execute(int **graph,
   		    core_table,
   		    core_count);
 
-  std::cout<<"\n";
+  // std::cout<<"\n";
   
-  for(int i=0;i<10;i++){
-    std::cout<<"\t"<<primary_allocation[i];
-  }
-  std::cout<<"\n";
+  // for(int i=0;i<10;i++){
+  //   std::cout<<"\t"<<primary_allocation[i];
+  // }
+  // std::cout<<"\n";
 }

@@ -177,10 +177,34 @@ ExecutionUnit* get_free_cpu_random(std::vector<ExecutionUnit*> &cpus){
   
 }
 
+
+
+
+ExecutionUnit* get_preallocated_cpu(std::vector<ExecutionUnit*> &cpus,
+				    Task* task,
+				    std::vector<int> allocation)
+{				    
+
+  ExecutionUnit* free_unit = NULL;
+
+  int task_id = task->get_id();
+  int index = task_id - 1;
+
+  int cpu_id = allocation[index];
+  int cpu_id_index = cpu_id -1;
+
+  if(cpus[cpu_id_index]->get_available()){
+    free_unit = cpus[cpu_id_index];
+  }
+
+  return free_unit;
+}
+
+
 ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
 			    Task* task,
 			    std::vector<Task*> &ready_queue,
-			    bool optimize=false){
+			    std::vector<int> allocation){
 
   if (task->get_type() == 'c'){
 
@@ -194,13 +218,29 @@ ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
 
     ExecutionUnit* free_unit = NULL;
 
+
+    if(allocation.empty()){
+
       if(ready_queue.size() == 1 && cpus[cpus.size()-2]->get_available()){
 	free_unit = cpus[cpus.size()-2];
       } else {
   	free_unit = get_free_cpu_random(cpus);
       }
 
+    } else {
+
+
+      // if(ready_queue.size() == 1 && cpus[cpus.size()-2]->get_available()){
+      // 	free_unit = cpus[cpus.size()-2];
+      // } else {
+      // 	free_unit = get_free_cpu_random(cpus);
+      // }
+      
+           free_unit = get_preallocated_cpu(cpus, task, allocation);
+    }
+
     return free_unit;
+    
   }
   return NULL;
   
