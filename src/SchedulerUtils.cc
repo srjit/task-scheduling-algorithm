@@ -6,15 +6,6 @@
 using namespace std;
 
 
-void get_primary_execution_unit(Task* task,
-			    std::vector<std::vector<Task*>> primary_allocation)
-{
-
-  
-  
-  
-}
-
 void stop_execution(Task *task,
 		    std::vector<Task*> &running_queue,
 		    int finish_tick){
@@ -23,9 +14,9 @@ void stop_execution(Task *task,
   task->set_is_finished(true);
   task->set_finish_time(finish_tick);
 
-  std::cout<<"Finished execution of task "<<task->get_id()<<
-    " and setting "<<task->get_cpu()->get_type()<<" CPU with ID "<<
-    task->get_cpu()->get_id()<< " to available\n";
+  // std::cout<<"Finished execution of task "<<task->get_id()<<
+  //   " and setting "<<task->get_cpu()->get_type()<<" CPU with ID "<<
+  //   task->get_cpu()->get_id()<< " to available\n";
       
   task->get_cpu()->set_available(true);
   running_queue.erase(std::remove(running_queue.begin(),
@@ -38,7 +29,7 @@ void stop_execution(Task *task,
 void remove_finished_tasks(std::vector<Task*> &running_queue,
 			   int finish_tick){
 
-  std::cout<<"\nElements in running queue: "<<running_queue.size()<<"\n";
+  // std::cout<<"\nElements in running queue: "<<running_queue.size()<<"\n";
   for(int i=0; i<running_queue.size(); i++){
     
     Task* task = running_queue[i];
@@ -68,7 +59,7 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
    * If they have, add it to ready queue and remove
    * from tasks_in_pool
    */
-  std::cout<<"\nTrying to unlock tasks in pool...\n";
+  //  std::cout<<"\nTrying to unlock tasks in pool...\n";
 
   vector<Task*> to_remove;
   
@@ -87,7 +78,7 @@ void try_unlocking(std::vector<Task*> &tasks_in_pool,
     }
 
     if(can_start){
-      std::cout<<"Adding "<<task->get_id()<< " to the ready queue\n";
+      //      std::cout<<"Adding "<<task->get_id()<< " to the ready queue\n";
       task->set_is_unlocked(true);
       ready_queue.push_back(task);
       to_remove.push_back(task);
@@ -127,16 +118,16 @@ void start(Task *task,
   if(cpu_id <= 3){
     // local CPU - pick time from core table
     ticks_to_finish = (float)core_table[task_index][cpu_index];
-    std::cout<<"\nTicks to finish for task "<<task->get_id()<<" :"<<ticks_to_finish<<"\n";
+    //    std::cout<<"\nTicks to finish for task "<<task->get_id()<<" :"<<ticks_to_finish<<"\n";
   } else{
     // hard coding for now
     ticks_to_finish = 5;
-    std::cout<<"\nTicks to finish for cloud task "<<task->get_id()<<" :"
-	     <<ticks_to_finish<<"\n";
+    //    std::cout<<"\nTicks to finish for cloud task "<<task->get_id()<<" :"
+    //	     <<ticks_to_finish<<"\n";
   }
   task->set_ticks_to_finish(ticks_to_finish);
 
-  std::cout<<"\nRunning task "<<task->get_id()<<" on CPU with ID: "<<cpu->get_id()<<"\n";
+  //  std::cout<<"\nRunning task "<<task->get_id()<<" on CPU with ID: "<<cpu->get_id()<<"\n";
   
 }
 
@@ -169,7 +160,7 @@ void assign(std::vector<Task*> &ready_queue,
 
     if(cpu != NULL){
 
-      std::cout<<"\nAssigning "<<_task->get_id()<<" CPU"<<cpu->get_id();
+      //      std::cout<<"\nAssigning "<<_task->get_id()<<" CPU"<<cpu->get_id();
       start(_task, cpu, core_table);
       /**
        * Remove the task from ready queue and assign it to running queue
@@ -177,7 +168,7 @@ void assign(std::vector<Task*> &ready_queue,
       running_queue.push_back(_task);
       to_remove.push_back(_task);
     }else{
-      std::cout<<"No free execution units available. Scheduler will wait until the next tick!\n";
+      //      std::cout<<"No free execution units available. Scheduler will wait until the next tick!\n";
       break;
     }
     
@@ -204,8 +195,8 @@ void run(std::vector<Task*> &running_queue){
    */
   for(int i=0; i<running_queue.size(); i++){
     running_queue[i]->increment_progress();
-    std::cout<<"\nTask "<<running_queue[i]->get_id()<<" is "
-	     <<running_queue[i]->get_progress_percentage()<<"% complete.\n";        
+    //    std::cout<<"\nTask "<<running_queue[i]->get_id()<<" is "
+    //	     <<running_queue[i]->get_progress_percentage()<<"% complete.\n";        
   }
   
 }
@@ -224,12 +215,13 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
    */
   int i=0;
   do{
-    std::cout<<"\n--------------  Tick: "<<++i<< "   ---------------";
+    int tick_id = ++i;
+    //    std::cout<<"\n--------------  Tick: "<<tick_id<< "   ---------------";
     /**
      * If any job has finished, free the CPU
      * onto_remove[i] which it has been running
      */
-    remove_finished_tasks(running_queue, i);
+    remove_finished_tasks(running_queue, tick_id);
     show_free_units(cpus);
     try_unlocking(tasks_in_pool, ready_queue);
     

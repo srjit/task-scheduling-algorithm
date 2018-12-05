@@ -4,7 +4,7 @@
 #include <queue>
 
 #include "SchedulerUtils.cc"
-#include "RunInfo.cc"
+//#include "RunInfo.cc"
 
 using namespace std;
 
@@ -113,14 +113,12 @@ void execution_unit_selection(std::vector<Task*> &tasks,
 }
 
 
-std::vector<int> get_primary_allocation_queue(std::vector<Task*> &tasks,
-				  std::array<std::array<int,3>, 10> core_table,
-				  int core_count)	      
+std::vector<int> get_baseline_allocation(std::vector<Task*> &tasks,
+					 std::array<std::array<int,3>, 10> core_table,
+					 int core_count)	      
 {
 
   std::vector<Task*> tasks_in_pool;
-  std::vector<std::vector<Task*>> primary_allocation;
-
   std::vector<int> _primary_allocation;
 
   for(int j=0; j<tasks.size(); j++){
@@ -132,10 +130,11 @@ std::vector<int> get_primary_allocation_queue(std::vector<Task*> &tasks,
   
 }
 
+
 float total_power_consumed(std::vector<Task*> &tasks)
 {
 
-  float power_consumed = 0;
+  float power_consumed = 0.0;
   for(int i=0; i<tasks.size(); i++){
     power_consumed += tasks[i]->get_power_consumed();
   }
@@ -147,11 +146,9 @@ float total_power_consumed(std::vector<Task*> &tasks)
 float total_time_taken(std::vector<Task*> &tasks)
 {
 
-  float total_time = 0;
-  for(int i=0; i<tasks.size(); i++){
-    total_time += tasks[i]->get_finish_time();
-  }
-  return total_time;
+  // this is possible only if we have only one
+  // end task
+  return tasks[tasks.size()-1]->get_finish_time();
   
 }
 
@@ -167,14 +164,24 @@ void reset_tasks(std::vector<Task*> &tasks){
     tasks[k]->set_is_running(false);
     tasks[k]->set_is_finished(false);
     tasks[k]->set_progress(0.0);
+
+    tasks[k]->set_power_consumed(0.0);
+
+    tasks[k]->set_ready_time(0);
+    tasks[k]->set_finish_time(0.0);
+    tasks[k]->set_ticks_to_finish(0);
+      
   }
   
 }
 
-void optimize_schedule(std::vector<Task*> &tasks,
-		       std::vector<int> primary_allocation,
-		       std::array<std::array<int,3>, 10> core_table,
-		       int core_count)
+vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
+				  std::vector<int> baseline_allocation,
+				  std::array<std::array<int,3>, 10> core_table,
+				  int core_count,
+				  float baseline_power,
+				  float baseline_time,
+				  float t_max)
 {
 
   vector<RunInfo> run_informations;
@@ -183,29 +190,15 @@ void optimize_schedule(std::vector<Task*> &tasks,
    * Outer loop
    */
   for(int i=0; i<tasks.size(); i++){
-
-    // Task* target_task_for_migration = tasks[i];
-    // int index_of_target = target_task_for_migration->get_id() - 1;
-
     vector<int> schedule;
     for(int j=1; j<=core_count+1; j++){
 
-
-      if(primary_allocation[i] != j){
-
 	reset_tasks(tasks);
-	vector<int> new_allocation(primary_allocation);
+	vector<int> new_allocation(baseline_allocation);
 
 	new_allocation.at(i) = j;
 	RunInfo run_information(new_allocation);
 
-	for(int k=0; k<new_allocation.size(); k++){
-	  std::cout<<new_allocation[k]<<"\t";
-	}
-
-	// adding every task from 1 to 9 into pool -
-	// task with index 0 is ready
-	
 	std::vector<Task*> tasks_in_pool;
 	for(int k=1; k<tasks.size();k++){
 	  tasks_in_pool.push_back(tasks[k]);    
@@ -225,17 +218,22 @@ void optimize_schedule(std::vector<Task*> &tasks,
 	float power_consumed = total_power_consumed(tasks);
 	run_information.set_power_consumption(power_consumed);
 
+	std::cout<<"Power consumed:"<<power_consumed<<"\n";
+
 	float time_taken = total_time_taken(tasks);
 	run_information.set_time_taken(time_taken);
-	
 
+	std::cout<<"Time taken:"<<time_taken<<"\n";
+
+	run_information.calculate_energy_reduction(baseline_power);
+	run_information.calculate_time_difference(baseline_time);
+	run_information.calculate_energyinc_timeinc_ratio();
+	  
 	run_informations.push_back(run_information);
-      
-      }
-
     }
   }
-  
+
+  return run_informations;
 }
 
 
@@ -274,8 +272,6 @@ void execute(int **graph,
   			   core_table,
   			   core_count);
 
-  float power_consumed = total_power_consumed(tasks);
-
   
   /**
    *************************************************     
@@ -284,17 +280,51 @@ void execute(int **graph,
    *************************************************
    */
 
-  compute_prerequisites_for_optimization(tasks);
-  std::vector<int> primary_allocation =
-    get_primary_allocation_queue(tasks,
-  				 core_table,
-  				 core_count);
 
-  optimize_schedule(tasks,
-  		    primary_allocation,
-  		    core_table,
-  		    core_count);
+  
 
+    std::vector<int> schedule_to_optimize =
+      get_baseline_allocation(tasks,
+			      core_table,
+			      core_count);
+
+    float power_consumed = total_power_consumed(tasks);
+    float finish_time = tasks[9]->get_finish_time();
+
+    float t_max = 1.2 * finish_time;
+    
+    std::cout<<"Finish time: "<<finish_time;
+    std::cout<<"t_max: " <<t_max;
+
+    // while(True){
+
+
+
+    // //   optimize_schedule(tasks,
+    // // 			schedule_to_optimize,
+    // // 			core_table,
+    // // 			core_count)
+
+    //   if( power_constain_not_met && time_constrain_not_met){
+    // 	break;
+    //   }
+      
+    // }
+
+    
+  vector<RunInfo> run_informations =  optimize_schedule(tasks,
+  							schedule_to_optimize,
+  							core_table,
+  							core_count,
+							power_consumed,
+							finish_time,
+							t_max);
+  
+
+  find_optimal_run(run_informations,
+		   power_consumed,
+		   finish_time);
+  
   // std::cout<<"\n";
   
   // for(int i=0;i<10;i++){

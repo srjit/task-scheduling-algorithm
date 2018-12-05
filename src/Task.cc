@@ -30,9 +30,6 @@ class Task{
   float finish_time;
   float ready_time = 0;
 
-  int ready1;
-  int ready2;
-
   float power_consumed = 0.0;
   
   /**

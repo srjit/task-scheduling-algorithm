@@ -85,3 +85,20 @@ Test for children
   std::cout<<"\n";
 
 
+
+
+
+  std::cout<<"====\n";  
+  std::sort(run_informations.begin(),
+  	    run_informations.end(),
+  	    compare_power_difference);
+
+  for(int j=0;j<run_informations.size(); j++){
+    std::cout<<run_informations[j].get_energy_reduction()<<"\t";
+    std::cout<<run_informations[j].get_power_consumption()<<"\t";
+    std::cout<<run_informations[j].get_time_difference()<<"\t";    
+    std::cout<<run_informations[j].get_energyinc_timeinc_ratio();    
+    std::cout<<"\n";
+  }
+  std::cout<<"====";
+
