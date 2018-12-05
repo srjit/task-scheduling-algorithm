@@ -5,7 +5,6 @@ class RunInfo{
   std::vector<int> assignment;
   float power_consumption;
   float time_taken;
-  // int cpus[10];
   
   float energy_reduction;
   float time_difference;
@@ -25,16 +24,6 @@ public:
   std::vector<int> get_assignment(){
     return this->assignment;
   }
-
-  // void set_cpus(int cpus[]){
-  //   for(int i=0; i<10; i++){
-  //     this->cpus[i] = cpus[i];
-  //   }
-  // }
-
-  // int[10] get_cpus(){
-  //   return this->cpus;
-  // }
 
   void set_power_consumption(float power_consumption){
     this->power_consumption = power_consumption;

@@ -360,19 +360,6 @@ RunInfo find_optimal_run(std::vector<RunInfo> run_informations,
 			  float baseline_finish_time){
 
   RunInfo optimal_run = find_optimal_from_power_and_time(run_informations);
-
-  // // std::cout<<"\n%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
-  // // std::cout<<optimal_run->get_time_difference()<<"\n";
-  // // std::cout<<optimal_run->get_time_taken();
-  // std::cout<<"\n==================================\n";
-  // std::vector<int> test = optimal_run.get_assignment();
-  // for(int j=0;j<test.size();j++){
-  //   std::cout<<test[j]<<"\t";
-  // }
-  // std::cout<<"\n==================================\n";	
-  
-  //  int foo[10] = optimal_run->get_cpus();
-  
   return optimal_run;
   
 }

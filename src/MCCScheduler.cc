@@ -304,8 +304,6 @@ void execute(int **graph,
     float power_consumed = total_power_consumed(tasks);
     float finish_time = tasks[9]->get_finish_time();
 
-    std::cout<<"===============>>"<<finish_time<<"\n";
-
     float t_max = 30;
     
     std::cout<<"Finish time: "<<finish_time;
@@ -327,6 +325,12 @@ void execute(int **graph,
 
       if(t_max < optimal_run.get_time_taken()){
 
+	std::cout<<"The allocation cannot be optimized further under the given parameters...";
+	break;
+      } else{
+
+	std::cout<<"\n Information about the optimal assignment in this sequence..."<<"\n";
+	
 	std::vector<int> optimal_assignment = optimal_run.get_assignment();
 	
 	for(int k=0;k<optimal_assignment.size(); k++){
@@ -334,16 +338,13 @@ void execute(int **graph,
 	}
 	std::cout<<"\n";
 	std::cout<<"Power: "<<optimal_run.get_power_consumption()<<"\n";
-	break;
-      } else{
-
+	std::cout<<"Time for optimal run: "<< optimal_run.get_time_taken()<<"\n";
+	
 
 	schedule_to_optimize = optimal_run.get_assignment();
-
 	power_consumed = total_power_consumed(tasks);
 	  
       }
-      std::cout<<"\n====&&&&&&====\n";
     }
 
     
