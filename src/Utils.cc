@@ -318,6 +318,27 @@ RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
   	    run_informations.end(),
   	    compare_power_difference);
 
+  bool flag = false;
+  RunInfo optimal;
+
+  for(int i=0; i<run_informations.size(); i++){
+
+    RunInfo tmp = run_informations[i];
+    if((tmp.get_energy_reduction() >0) && (tmp.get_time_difference() < 0)){
+      optimal = tmp;
+      flag = true;
+      break;
+    }
+    
+  }
+
+  if(!flag){
+    std::vector<RunInfo> lesser_energy_runs;
+    for(int i=0; i<run_informations.size(); i++){
+      if(run_informations[i].get_energy_reduction() > 0){
+	lesser_energy_runs.push_back(run_informations[i]);
+      }
+
   std::cout<<"==============================\n";  
   for(int k=0; k<run_informations.size(); k++){
     std::cout<<run_informations[k].get_power_consumption()<<"\t";
@@ -327,29 +348,7 @@ RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
   }
   std::cout<<"==============================\n";
   
-  bool flag = false;
-  RunInfo optimal;
-
-  for(int i=0; i<run_informations.size(); i++){
-
-    RunInfo tmp = run_informations[i];
-
-    if((tmp.get_energy_reduction() >0) && (tmp.get_time_difference() < 0)){
-      //      optimal = &tmp;
-      optimal = tmp;
-      flag = true;
-      break;
-    }
-    
-  }
-
-  if(!flag){
-
-    std::vector<RunInfo> lesser_energy_runs;
-    for(int i=0; i<run_informations.size(); i++){
-      if(run_informations[i].get_energy_reduction() > 0){
-	lesser_energy_runs.push_back(run_informations[i]);
-      }
+      
     }
 
 
@@ -359,9 +358,7 @@ RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
 
 
   optimal = lesser_energy_runs[0];
-  }
-
-
+ }
   return optimal;
   
 }

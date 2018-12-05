@@ -302,7 +302,7 @@ void execute(int **graph,
     float power_consumed = total_power_consumed(tasks);
     float finish_time = tasks[9]->get_finish_time();
 
-    float t_max = 30;
+    float t_max = 32;
     
     std::cout<<"Finish time: "<<finish_time;
     std::cout<<"t_max: " <<t_max;
@@ -334,6 +334,7 @@ void execute(int **graph,
 	for(int k=0;k<optimal_assignment.size(); k++){
 	  std::cout<<optimal_assignment[k]<<"\t";
 	}
+	
 	std::cout<<"\n";
 	std::cout<<"Power: "<<optimal_run.get_power_consumption()<<"\n";
 	std::cout<<"Time for optimal run: "<< optimal_run.get_time_taken()<<"\n";
