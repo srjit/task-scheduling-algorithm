@@ -341,8 +341,10 @@ RunInfo* find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
   	    lesser_energy_runs.end(),
   	    compare_with_power_time_ratio);
 
+
   optimal = &lesser_energy_runs[0];
   }
+
 
   return optimal;
   
@@ -351,21 +353,16 @@ RunInfo* find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
 
 
 RunInfo* find_optimal_run(std::vector<RunInfo> run_informations,
-			 float baseline_power_consumed,
-			 float baseline_finish_time){
+			  float baseline_power_consumed,
+			  float baseline_finish_time){
 
   RunInfo* optimal_run = find_optimal_from_power_and_time(run_informations);
 
-  // std::cout<<"\nRun:";
-  // for(int k=0; k<optimal_run->get_assignment().size(); k++){
-  //   std::cout<<optimal_run->get_assignment()[k]<<"\t";
-  // }
-  
-  // std::cout<<"\n";
-
-  // std::cout<<optimal_run->get_power_consumption();
-
-  // std::cout<<"\n";
+  std::cout<<"\n%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+  std::cout<<optimal_run->get_time_difference()<<"\n";
+  std::cout<<optimal_run->get_time_taken();
+  //  int foo[10] = optimal_run->get_cpus();
+    std::cout<<"\n%%%%%%%%%%%%%%%%%%%%%%%%%%\n";  
   
   return optimal_run;
   

@@ -180,8 +180,7 @@ vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
 				  std::array<std::array<int,3>, 10> core_table,
 				  int core_count,
 				  float baseline_power,
-				  float baseline_time,
-				  float t_max)
+				  float baseline_time)
 {
 
   vector<RunInfo> run_informations;
@@ -194,10 +193,17 @@ vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
     for(int j=1; j<=core_count+1; j++){
 
 	reset_tasks(tasks);
-	vector<int> new_allocation(baseline_allocation);
+	std::vector<int> new_allocation(baseline_allocation);
 
 	new_allocation.at(i) = j;
+	
 	RunInfo run_information(new_allocation);
+
+	// int foo[10];
+	// for(int k=0;k<10;k++){
+	//   foo[k] = new_allocation[k];
+	// }
+	// run_information.set_cpus(foo);
 
 	std::vector<Task*> tasks_in_pool;
 	for(int k=1; k<tasks.size();k++){
@@ -291,44 +297,54 @@ void execute(int **graph,
     float power_consumed = total_power_consumed(tasks);
     float finish_time = tasks[9]->get_finish_time();
 
-    float t_max = 1.2 * finish_time;
+    std::cout<<"===============>>"<<finish_time<<"\n";
+
+    float t_max = 27;
     
     std::cout<<"Finish time: "<<finish_time;
     std::cout<<"t_max: " <<t_max;
 
-    // while(True){
+    
+    while(true){
+
+      vector<RunInfo> run_informations =  optimize_schedule(tasks,
+							    schedule_to_optimize,
+							    core_table,
+							    core_count,
+							    power_consumed,
+							    finish_time);
+  
+      RunInfo* optimal_run = find_optimal_run(run_informations,
+					      power_consumed,
+					      finish_time);
+
+      std::cout<<">>>>>>>>>>>"<<optimal_run->get_time_taken()<<"\n";
+      std::cout<<">>>>>>>>>>>"<<t_max<<"\n";
+
+      if(t_max < optimal_run->get_time_taken()){
+	
+	// for(int k=0;k<optimal_assignment.size(); k++){
+	//   std::cout<<optimal_assignment[k]<<"\t";
+	// }
+	// std::cout<<"\n";
+
+	//    std::cout<<optimal_run->get_power_consumption()<<"\t";
+	
+	break;
+      } else{
 
 
+	schedule_to_optimize = optimal_run->get_assignment();
 
-    // //   optimize_schedule(tasks,
-    // // 			schedule_to_optimize,
-    // // 			core_table,
-    // // 			core_count)
+	power_consumed = total_power_consumed(tasks);
+	finish_time = tasks[9]->get_finish_time();
+	t_max = 1.5 * finish_time;
 
-    //   if( power_constain_not_met && time_constrain_not_met){
-    // 	break;
-    //   }
-      
-    // }
+	
+	  
+      }
+      std::cout<<"\n====&&&&&&====\n";
+    }
 
     
-  vector<RunInfo> run_informations =  optimize_schedule(tasks,
-  							schedule_to_optimize,
-  							core_table,
-  							core_count,
-							power_consumed,
-							finish_time,
-							t_max);
-  
-
-  find_optimal_run(run_informations,
-		   power_consumed,
-		   finish_time);
-  
-  // std::cout<<"\n";
-  
-  // for(int i=0;i<10;i++){
-  //   std::cout<<"\t"<<primary_allocation[i];
-  // }
-  // std::cout<<"\n";
 }
