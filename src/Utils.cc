@@ -308,26 +308,29 @@ bool compare_with_power_time_ratio(RunInfo r1, RunInfo r2)
 }
 
 
-RunInfo* find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
+RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
 {
 
   /**
    *  Sorting runs by minimal power consumed
    */
-  RunInfo *optimal = NULL;
+  bool flag = false;
+  RunInfo optimal;
 
   for(int i=0; i<run_informations.size(); i++){
 
     RunInfo tmp = run_informations[i];
 
     if((tmp.get_energy_reduction() >0) && (tmp.get_time_difference() > 0)){
-      optimal = &tmp;
+      //      optimal = &tmp;
+      optimal = tmp;
+      flag = true;
       break;
     }
     
   }
 
-  if(optimal == NULL){
+  if(!flag){
 
     std::vector<RunInfo> lesser_energy_runs;
     for(int i=0; i<run_informations.size(); i++){
@@ -342,7 +345,7 @@ RunInfo* find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
   	    compare_with_power_time_ratio);
 
 
-  optimal = &lesser_energy_runs[0];
+  optimal = lesser_energy_runs[0];
   }
 
 
@@ -352,17 +355,23 @@ RunInfo* find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
 
 
 
-RunInfo* find_optimal_run(std::vector<RunInfo> run_informations,
+RunInfo find_optimal_run(std::vector<RunInfo> run_informations,
 			  float baseline_power_consumed,
 			  float baseline_finish_time){
 
-  RunInfo* optimal_run = find_optimal_from_power_and_time(run_informations);
+  RunInfo optimal_run = find_optimal_from_power_and_time(run_informations);
 
-  std::cout<<"\n%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
-  std::cout<<optimal_run->get_time_difference()<<"\n";
-  std::cout<<optimal_run->get_time_taken();
+  // // std::cout<<"\n%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
+  // // std::cout<<optimal_run->get_time_difference()<<"\n";
+  // // std::cout<<optimal_run->get_time_taken();
+  // std::cout<<"\n==================================\n";
+  // std::vector<int> test = optimal_run.get_assignment();
+  // for(int j=0;j<test.size();j++){
+  //   std::cout<<test[j]<<"\t";
+  // }
+  // std::cout<<"\n==================================\n";	
+  
   //  int foo[10] = optimal_run->get_cpus();
-    std::cout<<"\n%%%%%%%%%%%%%%%%%%%%%%%%%%\n";  
   
   return optimal_run;
   

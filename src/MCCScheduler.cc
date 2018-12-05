@@ -199,6 +199,13 @@ vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
 	
 	RunInfo run_information(new_allocation);
 
+	// std::cout<<"\n==================================\n";
+	// std::vector<int> test = run_information.get_assignment();
+	// for(int j=0;j<test.size();j++){
+	//   std::cout<<test[j]<<"\t";
+	// }
+	// std::cout<<"\n==================================\n";	
+
 	// int foo[10];
 	// for(int k=0;k<10;k++){
 	//   foo[k] = new_allocation[k];
@@ -299,7 +306,7 @@ void execute(int **graph,
 
     std::cout<<"===============>>"<<finish_time<<"\n";
 
-    float t_max = 27;
+    float t_max = 30;
     
     std::cout<<"Finish time: "<<finish_time;
     std::cout<<"t_max: " <<t_max;
@@ -314,33 +321,26 @@ void execute(int **graph,
 							    power_consumed,
 							    finish_time);
   
-      RunInfo* optimal_run = find_optimal_run(run_informations,
+      RunInfo optimal_run = find_optimal_run(run_informations,
 					      power_consumed,
 					      finish_time);
 
-      std::cout<<">>>>>>>>>>>"<<optimal_run->get_time_taken()<<"\n";
-      std::cout<<">>>>>>>>>>>"<<t_max<<"\n";
+      if(t_max < optimal_run.get_time_taken()){
 
-      if(t_max < optimal_run->get_time_taken()){
+	std::vector<int> optimal_assignment = optimal_run.get_assignment();
 	
-	// for(int k=0;k<optimal_assignment.size(); k++){
-	//   std::cout<<optimal_assignment[k]<<"\t";
-	// }
-	// std::cout<<"\n";
-
-	//    std::cout<<optimal_run->get_power_consumption()<<"\t";
-	
+	for(int k=0;k<optimal_assignment.size(); k++){
+	  std::cout<<optimal_assignment[k]<<"\t";
+	}
+	std::cout<<"\n";
+	std::cout<<"Power: "<<optimal_run.get_power_consumption()<<"\n";
 	break;
       } else{
 
 
-	schedule_to_optimize = optimal_run->get_assignment();
+	schedule_to_optimize = optimal_run.get_assignment();
 
 	power_consumed = total_power_consumed(tasks);
-	finish_time = tasks[9]->get_finish_time();
-	t_max = 1.5 * finish_time;
-
-	
 	  
       }
       std::cout<<"\n====&&&&&&====\n";
