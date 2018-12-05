@@ -314,6 +314,19 @@ RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
   /**
    *  Sorting runs by minimal power consumed
    */
+  std::sort(run_informations.begin(),
+  	    run_informations.end(),
+  	    compare_power_difference);
+
+  std::cout<<"==============================\n";  
+  for(int k=0; k<run_informations.size(); k++){
+    std::cout<<run_informations[k].get_power_consumption()<<"\t";
+    std::cout<<run_informations[k].get_time_taken()<<"\t";
+    std::cout<<run_informations[k].get_time_difference()<<"\t";
+    std::cout<<run_informations[k].get_energy_reduction()<<"\n";            
+  }
+  std::cout<<"==============================\n";
+  
   bool flag = false;
   RunInfo optimal;
 
@@ -321,7 +334,7 @@ RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
 
     RunInfo tmp = run_informations[i];
 
-    if((tmp.get_energy_reduction() >0) && (tmp.get_time_difference() > 0)){
+    if((tmp.get_energy_reduction() >0) && (tmp.get_time_difference() < 0)){
       //      optimal = &tmp;
       optimal = tmp;
       flag = true;
@@ -360,6 +373,13 @@ RunInfo find_optimal_run(std::vector<RunInfo> run_informations,
 			  float baseline_finish_time){
 
   RunInfo optimal_run = find_optimal_from_power_and_time(run_informations);
+
+  std::cout<<"\n++++++++++++++++++++++++++++++++++++++++++++\n";
+  for(int k=0; k<optimal_run.get_assignment().size();k++){
+    std::cout<<optimal_run.get_assignment()[k]<<"\t";
+  }
+  std::cout<<"\n++++++++++++++++++++++++++++++++++++++++++++\n";  
+  
   return optimal_run;
   
 }

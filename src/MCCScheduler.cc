@@ -199,19 +199,6 @@ vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
 	
 	RunInfo run_information(new_allocation);
 
-	// std::cout<<"\n==================================\n";
-	// std::vector<int> test = run_information.get_assignment();
-	// for(int j=0;j<test.size();j++){
-	//   std::cout<<test[j]<<"\t";
-	// }
-	// std::cout<<"\n==================================\n";	
-
-	// int foo[10];
-	// for(int k=0;k<10;k++){
-	//   foo[k] = new_allocation[k];
-	// }
-	// run_information.set_cpus(foo);
-
 	std::vector<Task*> tasks_in_pool;
 	for(int k=1; k<tasks.size();k++){
 	  tasks_in_pool.push_back(tasks[k]);    
@@ -231,16 +218,27 @@ vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
 	float power_consumed = total_power_consumed(tasks);
 	run_information.set_power_consumption(power_consumed);
 
-	std::cout<<"Power consumed:"<<power_consumed<<"\n";
+	// std::cout<<"Power consumed:"<<power_consumed<<"\n";
 
 	float time_taken = total_time_taken(tasks);
 	run_information.set_time_taken(time_taken);
 
-	std::cout<<"Time taken:"<<time_taken<<"\n";
+	// std::cout<<"Time taken:"<<time_taken<<"\n";
 
 	run_information.calculate_energy_reduction(baseline_power);
 	run_information.calculate_time_difference(baseline_time);
 	run_information.calculate_energyinc_timeinc_ratio();
+
+	// if (i==0 && j==4){
+	//   std::cout<<"\n==============================\n";
+	//   std::vector<int> boo = run_information.get_assignment();
+	//   for(int k=0; k<boo.size(); k++){
+	//     std::cout<<boo[k]<<"\t";
+	//   }
+	//   std::cout<<"\nPower:"<<run_information.get_power_consumption();
+	//   std::cout<<"\n Time:"<<run_information.get_time_taken();
+	//   std::cout<<"\n==============================\n"; 	  
+	// }
 	  
 	run_informations.push_back(run_information);
     }
