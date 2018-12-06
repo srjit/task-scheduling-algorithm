@@ -1,6 +1,11 @@
 
 class ExecutionUnit{
 
+  /**
+   *  Representation of a core
+   *  A core could be either a local CPU core
+   *  or a cloud core unit.
+   */
   int id;
   char type;
   float power = 0.0;

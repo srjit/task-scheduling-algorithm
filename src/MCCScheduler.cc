@@ -4,9 +4,9 @@
 #include <queue>
 
 #include "SchedulerUtils.cc"
-//#include "RunInfo.cc"
 
 using namespace std;
+
 
 void primary_assignment(std::vector<Task*> &tasks,
 			std::array<std::array<int,3>, 10> core_table,
@@ -14,7 +14,6 @@ void primary_assignment(std::vector<Task*> &tasks,
 			int core_count,
 			CloudTask c_task_attributes)
 {
-
   /**
    * This is where we primarily decide if a task has to be executed
    * on the cloud or on one of the local cores.
@@ -50,14 +49,13 @@ void primary_assignment(std::vector<Task*> &tasks,
       					end(core_table[i]),
       					0,
       					plus<int>());
-
       cost = total_local_cost / float(core_count);
     } else if (task_type[i] == 'c'){
       tasks[i]->set_type('c');      
       cost = task_mintime_cloud[i];
     }
 
-     tasks[i]->set_cost(cost);
+    tasks[i]->set_cost(cost);
   }
 
 }
@@ -71,11 +69,11 @@ void task_prioritizing(std::vector<Task*> &tasks)
    *  Ref: Equation 15, page 195
    * 
    */
-
   calculate_and_set_priority(tasks[0]);
   std::cout<<"\nInitial priorities of tasks have been computed...";
   
 }
+
 
 void execution_unit_selection(std::vector<Task*> &tasks,
 			      std::array<std::array<int,3>, 10> core_table,
@@ -85,15 +83,11 @@ void execution_unit_selection(std::vector<Task*> &tasks,
   sort_by_priority(tasks);
 
   std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
-
-  
   std::cout<<"\nThere are "<< cpus.size() <<" execution units available\n";
 
   
   std::vector<Task*> tasks_in_pool;
 
-  // adding every task from 1 to 9 into pool -
-  // task with index 0 is ready
   for(int k=1; k< tasks.size();k++){
     tasks_in_pool.push_back(tasks[k]);
   }
@@ -146,8 +140,6 @@ float total_power_consumed(std::vector<Task*> &tasks)
 float total_time_taken(std::vector<Task*> &tasks)
 {
 
-  // this is possible only if we have only one
-  // end task
   return tasks[tasks.size()-1]->get_finish_time();
   
 }
@@ -175,6 +167,7 @@ void reset_tasks(std::vector<Task*> &tasks){
   
 }
 
+
 vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
 				  std::vector<int> baseline_allocation,
 				  std::array<std::array<int,3>, 10> core_table,
@@ -185,66 +178,49 @@ vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
 
   vector<RunInfo> run_informations;
 
-  /**
-   * Outer loop
-   */
   for(int i=0; i<tasks.size(); i++){
     vector<int> schedule;
     for(int j=1; j<=core_count+1; j++){
 
-	reset_tasks(tasks);
-	std::vector<int> new_allocation(baseline_allocation);
+      reset_tasks(tasks);
+      std::vector<int> new_allocation(baseline_allocation);
 
-	new_allocation.at(i) = j;
+      new_allocation.at(i) = j;
 	
-	RunInfo run_information(new_allocation);
+      RunInfo run_information(new_allocation);
 
-	std::vector<Task*> tasks_in_pool;
-	for(int k=1; k<tasks.size();k++){
-	  tasks_in_pool.push_back(tasks[k]);    
-	}
+      std::vector<Task*> tasks_in_pool;
+      for(int k=1; k<tasks.size();k++){
+	tasks_in_pool.push_back(tasks[k]);    
+      }
 	
-	std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
-	std::vector<Task*> ready_queue;  
-	tasks[0]->set_is_unlocked(true);
-	ready_queue.push_back(tasks[0]);
+      std::vector<ExecutionUnit*> cpus = get_execution_units(core_count);
+      std::vector<Task*> ready_queue;  
+      tasks[0]->set_is_unlocked(true);
+      ready_queue.push_back(tasks[0]);
 	
-	run_scheduler(tasks_in_pool,
-		      ready_queue,
-		      cpus,
-		      core_table,
-		      new_allocation);
+      run_scheduler(tasks_in_pool,
+		    ready_queue,
+		    cpus,
+		    core_table,
+		    new_allocation);
 
-	float power_consumed = total_power_consumed(tasks);
-	run_information.set_power_consumption(power_consumed);
+      float power_consumed = total_power_consumed(tasks);
+      run_information.set_power_consumption(power_consumed);
 
-	// std::cout<<"Power consumed:"<<power_consumed<<"\n";
+      float time_taken = total_time_taken(tasks);
+      run_information.set_time_taken(time_taken);
 
-	float time_taken = total_time_taken(tasks);
-	run_information.set_time_taken(time_taken);
+      run_information.calculate_energy_reduction(baseline_power);
+      run_information.calculate_time_difference(baseline_time);
+      run_information.calculate_energyinc_timeinc_ratio();
 
-	// std::cout<<"Time taken:"<<time_taken<<"\n";
-
-	run_information.calculate_energy_reduction(baseline_power);
-	run_information.calculate_time_difference(baseline_time);
-	run_information.calculate_energyinc_timeinc_ratio();
-
-	// if (i==0 && j==4){
-	//   std::cout<<"\n==============================\n";
-	//   std::vector<int> boo = run_information.get_assignment();
-	//   for(int k=0; k<boo.size(); k++){
-	//     std::cout<<boo[k]<<"\t";
-	//   }
-	//   std::cout<<"\nPower:"<<run_information.get_power_consumption();
-	//   std::cout<<"\n Time:"<<run_information.get_time_taken();
-	//   std::cout<<"\n==============================\n"; 	  
-	// }
-	  
-	run_informations.push_back(run_information);
+      run_informations.push_back(run_information);
     }
   }
 
   return run_informations;
+  
 }
 
 
@@ -264,15 +240,19 @@ void execute(int **graph,
   exit_task_ids.push_back(9);
 
   std::vector<Task*> tasks = construct_tasks(graph,
-					    job_count,
-					    exit_task_ids);
+					     job_count,
+					     exit_task_ids);
 
   /*
-   *************************************************
-   *         Part I:  Initial Scheduling           *
-   *                                               *
-   *************************************************
-   */ 
+*****************************************************************************
+*                     Part I:  Initial Scheduling                           *
+*                                                                           *
+* Generating an initial scheduling algorithm , generating the minimal delay *
+* of tasks on the local cores, the wireless communication channels          *
+* and the cloud.                                                            *
+*                                                                           *
+*****************************************************************************
+*/ 
   primary_assignment(tasks,
   		     core_table,
   		     job_count,
@@ -285,66 +265,90 @@ void execute(int **graph,
 
   
   /**
-   *************************************************     
-   *        Part II: Task Migration                *
-   *                                               *
-   *************************************************
+*****************************************************************************
+*                     Part II: Task Migration                               *
+*                                                                           *
+* This part of the scheduler algorithm aims at minimizing the energy        *
+* consumption E_total under the application completion time constraint      *
+* T_total <= Tmax                                                           *
+*                                                                           *
+*****************************************************************************
+*/
+
+  std::vector<int> schedule_to_optimize =
+    get_baseline_allocation(tasks,
+			    core_table,
+			    core_count);
+
+  float power_consumed = total_power_consumed(tasks);
+  float finish_time = tasks[9]->get_finish_time();
+
+  float t_max = 27;
+    
+  std::cout<<"Finish time: "<<finish_time;
+  std::cout<<"t_max: " <<t_max;
+
+  RunInfo previous_optimal_run_info;
+
+  /**
+   *  1) Outer loop
    */
+  int i=0;
+  while(true){
 
+    /**
+     *  Kernel Algorithm
+     * 
+     */ 
+    vector<RunInfo> run_informations =  optimize_schedule(tasks,
+							  schedule_to_optimize,
+							  core_table,
+							  core_count,
+							  power_consumed,
+							  finish_time);
+    RunInfo optimal_run = find_optimal_run(run_informations,
+					   power_consumed,
+					   finish_time);
 
-  
+    if(t_max < optimal_run.get_time_taken()){
 
-    std::vector<int> schedule_to_optimize =
-      get_baseline_allocation(tasks,
-			      core_table,
-			      core_count);
+      std::cout<<"The allocation cannot be optimized further under the given parameters...";
+      break;
+    } else{
 
-    float power_consumed = total_power_consumed(tasks);
-    float finish_time = tasks[9]->get_finish_time();
-
-    float t_max = 32;
-    
-    std::cout<<"Finish time: "<<finish_time;
-    std::cout<<"t_max: " <<t_max;
-
-    
-    while(true){
-
-      vector<RunInfo> run_informations =  optimize_schedule(tasks,
-							    schedule_to_optimize,
-							    core_table,
-							    core_count,
-							    power_consumed,
-							    finish_time);
-  
-      RunInfo optimal_run = find_optimal_run(run_informations,
-					      power_consumed,
-					      finish_time);
-
-      if(t_max < optimal_run.get_time_taken()){
-
-	std::cout<<"The allocation cannot be optimized further under the given parameters...";
-	break;
-      } else{
-
-	std::cout<<"\n Information about the optimal assignment in this sequence..."<<"\n";
+      std::cout<<"\n Information about the optimal assignment in this sequence..."<<"\n";
 	
-	std::vector<int> optimal_assignment = optimal_run.get_assignment();
+      std::vector<int> optimal_assignment = optimal_run.get_assignment();
 	
-	for(int k=0;k<optimal_assignment.size(); k++){
-	  std::cout<<optimal_assignment[k]<<"\t";
-	}
-	
-	std::cout<<"\n";
-	std::cout<<"Power: "<<optimal_run.get_power_consumption()<<"\n";
-	std::cout<<"Time for optimal run: "<< optimal_run.get_time_taken()<<"\n";
-	
-
-	schedule_to_optimize = optimal_run.get_assignment();
-	power_consumed = total_power_consumed(tasks);
-	  
+      for(int k=0;k<optimal_assignment.size(); k++){
+	std::cout<<optimal_assignment[k]<<"\t";
       }
-    }
+	
+      std::cout<<"\n";
+      std::cout<<"Power: "<<optimal_run.get_power_consumption()<<"\n";
+      std::cout<<"Time for optimal run: "<< optimal_run.get_time_taken()<<"\n";
+	
 
+      schedule_to_optimize = optimal_run.get_assignment();
+      power_consumed = total_power_consumed(tasks);
+
+      previous_optimal_run_info = optimal_run;
+    }
+  }
+
+  std::cout<<"Scheduler has finished optimization...\n\n";
+  std::cout<<"======================================================\n";
+  std::cout<<"\t Details of the most optimal schedule \n";
+  std::cout<<"======================================================\n\n";  
+  std::cout<<"Optimized power: "<<
+    previous_optimal_run_info.get_power_consumption()<<"\n";
+  std::cout<<"Time taken: "<<previous_optimal_run_info.get_time_taken()<<"\n\n";
+  std::cout<<" - Core Allocation for the tasks - \n";
+  std::cout<<" (Note:Core 4 is the cloud core) \n\n";
+  for(int k=0; k<job_count; k++){
+    std::cout<<"Job ID: "<<k+1 <<"\t" << " Core Allocated " <<
+      previous_optimal_run_info.get_assignment()[k];
+    std::cout<<"\n";
+  }
     
 }

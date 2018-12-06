@@ -2,6 +2,7 @@
 
 #include "ExecutionUnit.cc"
 
+
 class Task{
 
   int id;
@@ -217,13 +218,11 @@ public:
   }
 
   /**
-   *  Overloading == operator for later use
+   * Overloading == operator for comparison of
+   * two task objects 
    */
   bool operator==(const Task& _task){
     return this->get_id() == _task.id;
   }
-  
 
 };
-
-

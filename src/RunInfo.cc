@@ -2,6 +2,13 @@
 
 class RunInfo{
 
+
+  /**
+   *  This class provides information about a run
+   *  which optimizes the schedule in the Kernel part
+   *  of the task scheduling algorithm.
+   */
+
   std::vector<int> assignment;
   float power_consumption;
   float time_taken;

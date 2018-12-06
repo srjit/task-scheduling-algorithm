@@ -19,6 +19,7 @@ void print_matrix(int **matrix, int rows, int cols)
   
 }
 
+
 void example_graph(int **graph)
 {
 
@@ -33,6 +34,7 @@ void example_graph(int **graph)
               = graph[7][9] = graph[8][9] = 1;
   
 }
+
 
 std::array<std::array<int,3>, 10> local_execution_core_cycles()
 {
@@ -50,7 +52,9 @@ std::array<std::array<int,3>, 10> local_execution_core_cycles()
   }};
 
   return core_table;
+  
 }
+
 
 int main()
 {
@@ -65,6 +69,8 @@ int main()
   std::array<std::array<int,3>, 10> cores_table = local_execution_core_cycles();
 
   print_matrix(graph, 10, 10);
+
+  std::cout<<"Tasks submitted to the scheduler for optimizing schedule....\n";
 
   CloudTask c_task;
   c_task.t_send = 3;
