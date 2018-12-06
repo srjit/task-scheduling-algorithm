@@ -346,7 +346,7 @@ void execute(int **graph,
   std::cout<<" - Core Allocation for the tasks - \n";
   std::cout<<" (Note:Core 4 is the cloud core) \n\n";
   for(int k=0; k<job_count; k++){
-    std::cout<<"Job ID: "<<k+1 <<"\t" << " Core Allocated " <<
+    std::cout<<"Job ID: "<<k+1 <<"\t" << " Core Allocated: " <<
       previous_optimal_run_info.get_assignment()[k];
     std::cout<<"\n";
   }
