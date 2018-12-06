@@ -243,16 +243,16 @@ void execute(int **graph,
 					     job_count,
 					     exit_task_ids);
 
-  /*
-*****************************************************************************
-*                     Part I:  Initial Scheduling                           *
-*                                                                           *
-* Generating an initial scheduling algorithm , generating the minimal delay *
-* of tasks on the local cores, the wireless communication channels          *
-* and the cloud.                                                            *
-*                                                                           *
-*****************************************************************************
-*/ 
+/*
+ *****************************************************************************
+ *                     Part I:  Initial Scheduling                           *
+ *                                                                           *
+ * Generating an initial scheduling algorithm , generating the minimal delay *
+ * of tasks on the local cores, the wireless communication channels          *
+ * and the cloud.                                                            *
+ *                                                                           *
+ *****************************************************************************
+ */ 
   primary_assignment(tasks,
   		     core_table,
   		     job_count,
@@ -263,17 +263,17 @@ void execute(int **graph,
   			   core_table,
   			   core_count);
 
-  
-  /**
-*****************************************************************************
-*                     Part II: Task Migration                               *
-*                                                                           *
-* This part of the scheduler algorithm aims at minimizing the energy        *
-* consumption E_total under the application completion time constraint      *
-* T_total <= Tmax                                                           *
-*                                                                           *
-*****************************************************************************
-*/
+
+/**
+ *****************************************************************************
+ *                     Part II: Task Migration                               *
+ *                                                                           *
+ * This part of the scheduler algorithm aims at minimizing the energy        *
+ * consumption E_total under the application completion time constraint      *
+ * T_total <= Tmax                                                           *
+ *                                                                           *
+ *****************************************************************************
+ */
 
   std::vector<int> schedule_to_optimize =
     get_baseline_allocation(tasks,
@@ -334,6 +334,8 @@ void execute(int **graph,
 
       previous_optimal_run_info = optimal_run;
     }
+
+    i++;
   }
 
   std::cout<<"Scheduler has finished optimization...\n\n";
