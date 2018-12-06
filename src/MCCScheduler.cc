@@ -297,7 +297,7 @@ void execute(int **graph,
   while(true){
 
     /**
-     *  Kernel Algorithm
+     *  2) Kernel Algorithm - Optimization
      * 
      */ 
     vector<RunInfo> run_informations =  optimize_schedule(tasks,
