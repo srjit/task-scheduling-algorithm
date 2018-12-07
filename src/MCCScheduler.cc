@@ -70,7 +70,7 @@ void task_prioritizing(std::vector<Task*> &tasks)
    * 
    */
   calculate_and_set_priority(tasks[0]);
-  std::cout<<"\nInitial priorities of tasks have been computed...";
+  std::cout<<"\nInitial priorities of tasks have been computed...\n";
   
 }
 
@@ -137,10 +137,17 @@ float total_power_consumed(std::vector<Task*> &tasks)
 }
 
 
+// float total_time_ta212ken2(std::vector<Task*> &tasks)
+// {
+//   float total_time_taken = 
+// }
+
+
 float total_time_taken(std::vector<Task*> &tasks)
 {
 
-  return tasks[tasks.size()-1]->get_finish_time();
+  float total_time_before = tasks[tasks.size()-1]->get_finish_time();
+  return tasks[tasks.size()-1]->get_ready_time();
   
 }
 
@@ -161,7 +168,8 @@ void reset_tasks(std::vector<Task*> &tasks){
 
     tasks[k]->set_ready_time(0);
     tasks[k]->set_finish_time(0.0);
-    tasks[k]->set_ticks_to_finish(0);
+    tasks[k]->set_ticks_to_finish_for_local_children(0);
+    tasks[k]->set_ticks_to_finish_for_cloud_children(0);    
       
   }
   
@@ -277,16 +285,17 @@ void execute(int **graph,
 
   std::vector<int> schedule_to_optimize =
     get_baseline_allocation(tasks,
-			    core_table,
-			    core_count);
+  			    core_table,
+  			    core_count);
 
   float power_consumed = total_power_consumed(tasks);
   float finish_time = tasks[9]->get_finish_time();
 
-  float t_max = 27;
+  float t_max = 24;
     
-  std::cout<<"Finish time: "<<finish_time;
-  std::cout<<"t_max: " <<t_max;
+  std::cout<<"Finish time: "<<finish_time<<"\n";
+  std::cout<<"Power consumed: "<<power_consumed<<"\n";  
+  std::cout<<"t_max: " <<t_max<<"\n";
 
   RunInfo previous_optimal_run_info;
 
@@ -301,27 +310,27 @@ void execute(int **graph,
      * 
      */ 
     vector<RunInfo> run_informations =  optimize_schedule(tasks,
-							  schedule_to_optimize,
-							  core_table,
-							  core_count,
-							  power_consumed,
-							  finish_time);
+  							  schedule_to_optimize,
+  							  core_table,
+  							  core_count,
+  							  power_consumed,
+  							  finish_time);
     RunInfo optimal_run = find_optimal_run(run_informations,
-					   power_consumed,
-					   finish_time);
+  					   power_consumed,
+  					   finish_time);
 
     if(t_max < optimal_run.get_time_taken()){
 
       std::cout<<"The allocation cannot be optimized further under the given parameters...";
       break;
+      
     } else{
 
       std::cout<<"\n Information about the optimal assignment in this sequence..."<<"\n";
-	
       std::vector<int> optimal_assignment = optimal_run.get_assignment();
 	
       for(int k=0;k<optimal_assignment.size(); k++){
-	std::cout<<optimal_assignment[k]<<"\t";
+  	std::cout<<optimal_assignment[k]<<"\t";
       }
 	
       std::cout<<"\n";

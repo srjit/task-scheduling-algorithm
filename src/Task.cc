@@ -32,6 +32,14 @@ class Task{
   float ready_time = 0;
 
   float power_consumed = 0.0;
+  bool can_cloud_children_start = false;
+
+  int wireless_ticks_total = 3;
+  int wireless_ticks_current = 0;
+
+  bool has_blocked_channel = false;
+  bool has_finished_transmitting = false;
+  
   
   /**
    * Increment this unit by 1 tick
@@ -43,7 +51,8 @@ class Task{
    * The ticks to finish a task depends on the CPU on
    * which is assigned to.
    */
-  float ticks_to_finish;
+  float ticks_to_finish_for_local_children;
+  float ticks_to_finish_for_cloud_children;
   
 public:
 
@@ -141,13 +150,22 @@ public:
     this->children.push_back(child);
   }
 
-  void set_ticks_to_finish(float ticks){
-    this->ticks_to_finish = ticks;
+  void set_ticks_to_finish_for_local_children(float ticks){
+    this->ticks_to_finish_for_local_children = ticks;
   }
 
-  int get_ticks_to_finish(){
-    return this->ticks_to_finish;
+  int get_ticks_to_finish_for_local_children(){
+    return this->ticks_to_finish_for_local_children;
   }
+
+  void set_ticks_to_finish_for_cloud_children(float ticks){
+    this->ticks_to_finish_for_cloud_children = ticks;
+  }
+
+  int get_ticks_to_finish_for_cloud_children(){
+    return this->ticks_to_finish_for_cloud_children;
+  }
+  
 
   void increment_progress(){
     this->progress += 1.0;
@@ -168,7 +186,7 @@ public:
   }
 
   float get_progress_percentage(){
-    float progress_percentage = (this->progress)/(this->ticks_to_finish)*100;
+    float progress_percentage = (this->progress)/(this->ticks_to_finish_for_cloud_children)*100;
     if (progress_percentage > 100){
       progress_percentage = 100;
     }
@@ -215,6 +233,42 @@ public:
 
   float get_power_consumed(){
     return this->power_consumed;
+  }
+
+  void set_can_cloud_children_start(bool can_start){
+    this->can_cloud_children_start = can_start;
+  }
+
+  bool get_can_cloud_children_start(){
+    return this->can_cloud_children_start;
+  }
+
+  bool get_wireless_ticks_current(){
+    return this->wireless_ticks_current;
+  }
+
+  void increment_wireless_ticks(){
+    this->wireless_ticks_current += 1;
+  }
+
+  void set_has_blocked_channel(bool blocked){
+    this->has_blocked_channel = blocked;
+  }
+
+  bool get_has_blocked_channel(){
+    return this->has_blocked_channel;
+  }
+
+  void set_has_finished_transmitting(bool has_finished){
+    this->has_finished_transmitting = has_finished;
+  }
+
+  bool get_has_finished_transmitting(){
+    return this->has_finished_transmitting;
+  }
+
+  int get_wireless_ticks_total(){
+    return this->wireless_ticks_total;
   }
 
   /**

@@ -153,7 +153,8 @@ void calculate_and_set_priority(Task *task)
 }
 
 
-ExecutionUnit* get_free_cpu_random(std::vector<ExecutionUnit*> &cpus)
+ExecutionUnit* get_free_cpu_random(std::vector<ExecutionUnit*> &cpus,
+				   Task* task)
 {
 
   /**
@@ -176,6 +177,27 @@ ExecutionUnit* get_free_cpu_random(std::vector<ExecutionUnit*> &cpus)
     free_unit = cpus[cpus.size()-4];
   }
 
+  // std::vector<int> units_allocated;
+
+  // units_allocated.push_back(2);
+  // units_allocated.push_back(3);
+  // units_allocated.push_back(2);
+  // units_allocated.push_back(0);
+  // units_allocated.push_back(2);
+  // units_allocated.push_back(1);
+  // units_allocated.push_back(2);
+  // units_allocated.push_back(1);
+  // units_allocated.push_back(2);
+  // units_allocated.push_back(2);  
+  
+
+  // int task_index = task->get_id() - 1;
+  // int cpu_index = units_allocated[task_index];
+
+  // if(cpus[cpu_index]->get_available()){
+  //   free_unit = cpus[cpu_index];
+  // }
+  
   return free_unit;
   
 }
@@ -193,6 +215,10 @@ ExecutionUnit* get_preallocated_cpu(std::vector<ExecutionUnit*> &cpus,
 
   int cpu_id = allocation[index];
   int cpu_id_index = cpu_id -1;
+
+  // if(task->get_id() == 10){
+  //   cpu_id_index = 3;
+  // }
 
   if(cpus[cpu_id_index]->get_available()){
     free_unit = cpus[cpu_id_index];
@@ -225,7 +251,7 @@ ExecutionUnit* get_free_cpu(std::vector<ExecutionUnit*> &cpus,
       if(ready_queue.size() == 1 && cpus[cpus.size()-2]->get_available()){
 	free_unit = cpus[cpus.size()-2];
       } else {
-  	free_unit = get_free_cpu_random(cpus);
+  	free_unit = get_free_cpu_random(cpus, task);
       }
 
     } else {
@@ -255,39 +281,39 @@ void print_ready_tasks(std::vector<Task> &ready_queue)
 void show_free_units(std::vector<ExecutionUnit*> &cpus)
 {
 
-  std::cout<<"Free CPUs: ";
-  for(int k=0; k<cpus.size(); k++){
-    if(cpus[k]->get_available()){
-      std::cout<<cpus[k]->get_id()<<"\t";
-    }
-  }
-  std::cout<<"\n";
+  // std::cout<<"Free CPUs: ";
+  // for(int k=0; k<cpus.size(); k++){
+  //   if(cpus[k]->get_available()){
+  //     std::cout<<cpus[k]->get_id()<<"\t";
+  //   }
+  // }
+  // std::cout<<"\n";
   
 }
 
 
-void compute_ready_times(std::vector<Task*> &tasks)
-{
+// void compute_ready_times(std::vector<Task*> &tasks)
+// {
 
-  for(int i=0; i<tasks.size(); i++){
+//   for(int i=0; i<tasks.size(); i++){
 
-    std::vector<float> finish_times;
-    std::vector<Task*> parents = tasks[i]->get_parents();
+//     std::vector<float> finish_times;
+//     std::vector<Task*> parents = tasks[i]->get_parents();
     
-    for(int j=0; j<parents.size(); j++){
-      float finish_time = parents[j]->get_finish_time();
-      finish_times.push_back(finish_time);
-    }
+//     for(int j=0; j<parents.size(); j++){
+//       float finish_time = parents[j]->get_finish_time();
+//       finish_times.push_back(finish_time);
+//     }
 
-    float max_finish_time = 0;
-    if(finish_times.size() > 0){
-      max_finish_time = *std::max_element(std::begin(finish_times),
-					  std::end(finish_times));
-    }
-    tasks[i]->set_ready_time(max_finish_time);
-  }
+//     float max_finish_time = 0;
+//     if(finish_times.size() > 0){
+//       max_finish_time = *std::max_element(std::begin(finish_times),
+// 					  std::end(finish_times));
+//     }
+//     tasks[i]->set_ready_time(max_finish_time);
+//   }
   
-}
+// }
 
 
 bool compare_power_difference(RunInfo r1, RunInfo r2)
@@ -322,6 +348,17 @@ RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
   bool flag = false;
   RunInfo optimal;
 
+  std::cout<<"\n---------------------------------------------------------------------------\n";
+  std::cout<<"Power\tTime\t<<Energy Reduction Ratio\n";
+  for(int k=0; k<run_informations.size(); k++){
+       std::cout<<run_informations[k].get_power_consumption()<<"\t"<<run_informations[k].get_time_taken()<<"\t"<<run_informations[k].get_energy_reduction()<<"\n";
+  for(int j=0;j<10;j++){
+    std::cout<<run_informations[k].get_assignment()[j]<<"\t";
+  }
+  std::cout<<"\n";
+  }
+  std::cout<<"\n---------------------------------------------------------------------------\n";  
+
   for(int i=0; i<run_informations.size(); i++){
 
     RunInfo tmp = run_informations[i];
@@ -342,9 +379,6 @@ RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
     }
 
 
-  std::sort(lesser_energy_runs.begin(),
-  	    lesser_energy_runs.end(),
-  	    compare_with_power_time_ratio);
   optimal = lesser_energy_runs[0];
  }
   return optimal;

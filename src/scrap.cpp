@@ -102,3 +102,13 @@ Test for children
   }
   std::cout<<"====";
 
+
+
+
+
+
+  std::sort(run_informations.begin(),
+  	    run_informations.end(),
+  	    compare_with_power_time_ratio);
+
+  
