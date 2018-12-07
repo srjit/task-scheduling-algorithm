@@ -36,6 +36,22 @@ void example_graph(int **graph)
 }
 
 
+void example_graph2(int **graph)
+{
+
+  for(int i=0;i<job_count; i++){
+    graph[i] = new int[job_count];
+  }
+
+  graph[0][1] = graph[0][2] = graph[0][3] = graph[0][4]
+              = graph[1][5] = graph[2][5] = graph[2][6]
+              = graph[2][7] = graph[3][5] = graph[3][6]
+              = graph[3][7] = graph[4][8] = graph[5][9]
+              = graph[6][9] = graph[7][9] = graph[8][9] = 1;
+  
+}
+
+
 std::array<std::array<int,3>, 10> local_execution_core_cycles()
 {
 
