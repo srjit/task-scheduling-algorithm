@@ -323,7 +323,7 @@ void increment_transmission(std::vector<Task*> &tasks_in_pool){
 }
 
 
-void run_scheduler(std::vector<Task*> &tasks_in_pool,
+int run_scheduler(std::vector<Task*> &tasks_in_pool,
 		   std::vector<Task*> &ready_queue,
 		   std::vector<ExecutionUnit*> &cpus,
 		   std::array<std::array<int,3>, 10> core_table,
@@ -368,5 +368,7 @@ void run_scheduler(std::vector<Task*> &tasks_in_pool,
     run(running_queue);
     //    sleep(1);
   }while(tasks_in_pool.size() > 0 || running_queue.size()>0);
+
+  return tick_id;
 
 }

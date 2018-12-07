@@ -182,7 +182,7 @@ vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
 
   for(int i=0; i<tasks.size(); i++){
     vector<int> schedule;
-    for(int j=1; j<=core_count+1; j++){
+    for(int j=2; j<=core_count+1; j++){
 
       reset_tasks(tasks);
       std::vector<int> new_allocation(baseline_allocation);
@@ -210,8 +210,9 @@ vector<RunInfo> optimize_schedule(std::vector<Task*> &tasks,
       float power_consumed = total_power_consumed(tasks);
       run_information.set_power_consumption(power_consumed);
 
-      float time_taken = total_time_taken(tasks);
-      run_information.set_time_taken(time_taken);
+           float time_taken = total_time_taken(tasks);
+           run_information.set_time_taken(time_taken);
+      //      run_information.set_time_taken(ticks);      
 
       run_information.calculate_energy_reduction(baseline_power);
       run_information.calculate_time_difference(baseline_time);
@@ -285,7 +286,7 @@ void execute(int **graph,
   float power_consumed = total_power_consumed(tasks);
   float finish_time = tasks[9]->get_finish_time();
 
-  float t_max = 24;
+  float t_max = 20;
     
   std::cout<<"Finish time: "<<finish_time<<"\n";
   std::cout<<"Power consumed: "<<power_consumed<<"\n";  
@@ -347,7 +348,6 @@ void execute(int **graph,
   std::cout<<"======================================================\n\n";  
   std::cout<<"Optimized power: "<<
     previous_optimal_run_info.get_power_consumption()<<"\n";
-  std::cout<<"Time taken: "<<previous_optimal_run_info.get_time_taken()<<"\n\n";
   std::cout<<" - Core Allocation for the tasks - \n";
   std::cout<<" (Note:Core 4 is the cloud core) \n\n";
   for(int k=0; k<job_count; k++){
