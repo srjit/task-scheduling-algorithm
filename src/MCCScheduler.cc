@@ -137,12 +137,6 @@ float total_power_consumed(std::vector<Task*> &tasks)
 }
 
 
-// float total_time_ta212ken2(std::vector<Task*> &tasks)
-// {
-//   float total_time_taken = 
-// }
-
-
 float total_time_taken(std::vector<Task*> &tasks)
 {
 

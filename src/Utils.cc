@@ -216,10 +216,6 @@ ExecutionUnit* get_preallocated_cpu(std::vector<ExecutionUnit*> &cpus,
   int cpu_id = allocation[index];
   int cpu_id_index = cpu_id -1;
 
-  // if(task->get_id() == 10){
-  //   cpu_id_index = 3;
-  // }
-
   if(cpus[cpu_id_index]->get_available()){
     free_unit = cpus[cpu_id_index];
   }
@@ -281,39 +277,15 @@ void print_ready_tasks(std::vector<Task> &ready_queue)
 void show_free_units(std::vector<ExecutionUnit*> &cpus)
 {
 
-  // std::cout<<"Free CPUs: ";
-  // for(int k=0; k<cpus.size(); k++){
-  //   if(cpus[k]->get_available()){
-  //     std::cout<<cpus[k]->get_id()<<"\t";
-  //   }
-  // }
-  // std::cout<<"\n";
+  std::cout<<"Free CPUs: ";
+  for(int k=0; k<cpus.size(); k++){
+    if(cpus[k]->get_available()){
+      std::cout<<cpus[k]->get_id()<<"\t";
+    }
+  }
+  std::cout<<"\n";
   
 }
-
-
-// void compute_ready_times(std::vector<Task*> &tasks)
-// {
-
-//   for(int i=0; i<tasks.size(); i++){
-
-//     std::vector<float> finish_times;
-//     std::vector<Task*> parents = tasks[i]->get_parents();
-    
-//     for(int j=0; j<parents.size(); j++){
-//       float finish_time = parents[j]->get_finish_time();
-//       finish_times.push_back(finish_time);
-//     }
-
-//     float max_finish_time = 0;
-//     if(finish_times.size() > 0){
-//       max_finish_time = *std::max_element(std::begin(finish_times),
-// 					  std::end(finish_times));
-//     }
-//     tasks[i]->set_ready_time(max_finish_time);
-//   }
-  
-// }
 
 
 bool compare_power_difference(RunInfo r1, RunInfo r2)
@@ -348,16 +320,17 @@ RunInfo find_optimal_from_power_and_time(std::vector<RunInfo> run_informations)
   bool flag = false;
   RunInfo optimal;
 
-  std::cout<<"\n---------------------------------------------------------------------------\n";
-  std::cout<<"Power\tTime\t<<Energy Reduction Ratio\n";
-  for(int k=0; k<run_informations.size(); k++){
-       std::cout<<run_informations[k].get_power_consumption()<<"\t"<<run_informations[k].get_time_taken()<<"\t"<<run_informations[k].get_energy_reduction()<<"\n";
-  for(int j=0;j<10;j++){
-    std::cout<<run_informations[k].get_assignment()[j]<<"\t";
-  }
-  std::cout<<"\n";
-  }
-  std::cout<<"\n---------------------------------------------------------------------------\n";  
+  // std::cout<<"\n---------------------------------------------------------------------------\n";
+  // std::cout<<"Power\tTime\t<<Energy Reduction Ratio\n";
+  // for(int k=0; k<run_informations.size(); k++){
+  //      std::cout<<run_informations[k].get_power_consumption()<<"\t"<<run_informations[k].get_time_taken()<<"\t"<<run_informations[k].get_energy_reduction()<<"\n";
+  // for(int j=0;j<10;j++){
+  //   std::cout<<run_informations[k].get_assignment()[j]<<"\t";
+  // }
+  // std::cout<<"\n";
+  // }
+  // std::cout<<"\n---------------------------------------------------------------------------\n"; 
+  
 
   for(int i=0; i<run_informations.size(); i++){
 
