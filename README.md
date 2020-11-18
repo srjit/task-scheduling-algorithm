@@ -1,6 +1,6 @@
 # task-scheduling-algorithm
 
-Implementation of an Energy and Performance-Aware algorithms for task scheduling in a Mobile Cloud Computing Environment
+Implementation of Energy and Performance-Aware algorithms for task scheduling in a Mobile Cloud Computing Environment
 
 The scheduler is built based on the ideas presented in this [paper](https://ywang393.expressions.syr.edu/wp-content/uploads/2016/07/An-energy-and-performance-aware-task-scheduling-framework-in-the-mobile-cloud-computing-environment.pdf). 
 
